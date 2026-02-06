@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Attendance;
 use App\Models\AttendanceStatus;
 use App\Models\AttendanceSchedule;
+use App\Models\ViolationPoint;
+use App\Models\ViolationRule;
 
 class AbsenController extends Controller
 {
@@ -97,6 +99,18 @@ class AbsenController extends Controller
             'photo' => $photoPath
         ]);
 
+        // Tambahkan pelanggaran jika status Telat
+        if ($statusName === 'Telat') {
+            $rule = ViolationRule::where('name', 'Terlambat')->first();
+            if ($rule) {
+                ViolationPoint::create([
+                    'student_id' => $user->id,
+                    'attendance_id' => $absen->id,
+                    'rule_id' => $rule->id,
+                ]);
+            }
+        }
+
         return response()->json(['success' => true]);
     }
 
@@ -113,7 +127,7 @@ class AbsenController extends Controller
 
         // Ambil data absen
         $attendance = Attendance::findOrFail($request->attendance_id);
-        
+
         // Validasi absen punya user yang login
         if ($attendance->student_id != $user->id) {
             return response()->json(['success' => false, 'message' => 'Anda tidak memiliki akses untuk absen ini'], 403);
@@ -149,19 +163,19 @@ class AbsenController extends Controller
         // Validasi 4: Pastikan tanggal absen adalah hari ini
         if ($attendance->date != $today) {
             return response()->json([
-                'success' => false, 
+                'success' => false,
                 'message' => 'Tidak bisa check out untuk tanggal yang sudah lewat'
             ]);
         }
 
         // Cek apakah sudah waktunya check out
-        $startTimeOut = $schedule->start_time_out; 
-        $endTimeOut = $schedule->end_time_out;    
-        
+        $startTimeOut = $schedule->start_time_out;
+        $endTimeOut = $schedule->end_time_out;
+
         // Validasi 5: Cek waktu check out
         if ($nowTime < $startTimeOut) {
             return response()->json([
-                'success' => false, 
+                'success' => false,
                 'message' => 'Belum waktunya pulang. Silakan check out mulai pukul ' . $startTimeOut . ' WIB.'
             ]);
         }
@@ -192,5 +206,31 @@ class AbsenController extends Controller
             'attendance_id' => $attendance->id,
             'message' => 'Check out berhasil pada jam ' . $nowTime
         ]);
+    }
+
+    // Fungsi untuk memberi poin Bolos jika siswa tidak absen (panggil via scheduler/command harian)
+    public static function giveBolosForAbsentStudents($date = null)
+    {
+        $date = $date ?? now('Asia/Jakarta')->toDateString();
+        $classSchedules = \App\Models\AttendanceSchedule::all();
+
+        foreach ($classSchedules as $schedule) {
+            $students = $schedule->class->students ?? [];
+            foreach ($students as $student) {
+                $sudahAbsen = \App\Models\Attendance::where('student_id', $student->id)
+                    ->where('date', $date)
+                    ->exists();
+                if (!$sudahAbsen) {
+                    $rule = ViolationRule::where('name', 'Bolos')->first();
+                    if ($rule) {
+                        ViolationPoint::firstOrCreate([
+                            'student_id' => $student->id,
+                            'rule_id' => $rule->id,
+                            'attendance_id' => null,
+                        ]);
+                    }
+                }
+            }
+        }
     }
 }

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class ViolationPoint extends Model
 {
-    protected $fillable = ['student_id', 'rule_id', 'date'];
+    protected $fillable = ['student_id', 'rule_id', 'attendance_id', 'date'];
 
     public function rule()
     {
@@ -16,5 +16,10 @@ class ViolationPoint extends Model
     public function student()
     {
         return $this->belongsTo(User::class, 'student_id');
+    }
+
+    public function attendance()
+    {
+        return $this->belongsTo(Attendance::class, 'attendance_id');
     }
 }

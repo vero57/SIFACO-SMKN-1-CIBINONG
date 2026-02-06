@@ -43,8 +43,9 @@ Route::middleware(['userakses:Admin,Guru'])->group(function () {
 
     // Pelanggaran
     Route::get('/dashboard/pelanggaran', [PelanggaranController::class, 'index'])->name('dashboard.pelanggaran');
-    Route::get('/dashboard/pelanggaran/show', [PelanggaranController::class, 'show'])->name('dashboard.pelanggaran.show');
+    Route::get('/dashboard/pelanggaran/{id}/show', [PelanggaranController::class, 'show'])->name('dashboard.pelanggaran.show');
     Route::get('/dashboard/pelanggaran/export/pdf', [PelanggaranController::class, 'exportPdf'])->name('dashboard.pelanggaran.exportPdf');
+    Route::delete('/dashboard/pelanggaran/{id}/delete', [PelanggaranController::class, 'destroy'])->name('dashboard.pelanggaran.delete');
 
     // Izin
     Route::get('/dashboard/izin', [IzinController::class, 'index'])->name('dashboard.izin');

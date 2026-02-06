@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('violation_points', function (Blueprint $table) {
             $table->id();
             $table->foreignId('student_id')->constrained('users')->cascadeOnDelete();
-            $table->foreignId('attendance_id')->constrained('attendances')->cascadeOnDelete();
+            $table->foreignId('attendance_id')->nullable()->constrained('attendances')->cascadeOnDelete();
             $table->foreignId('rule_id')->constrained('violation_rules');
             $table->timestamps();
         });
