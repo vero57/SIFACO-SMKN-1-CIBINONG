@@ -98,6 +98,9 @@ class AbsenController extends Controller
             'location_lng' => $request->lng,
             'photo' => $photoPath
         ]);
+        
+        event(new \App\Events\AttendanceCreated($absen));
+
 
         // Tambahkan pelanggaran jika status Telat
         if ($statusName === 'Telat') {
