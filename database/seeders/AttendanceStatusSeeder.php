@@ -14,6 +14,7 @@ class AttendanceStatusSeeder extends Seeder
             ['name' => 'Sakit'],
             ['name' => 'Izin'],
             ['name' => 'Alfa'],
+            ['name' => 'Telat'],
         ]);
     }
 }
