@@ -74,7 +74,7 @@
                 <td style="border:1px solid #ddd;padding:8px;">{{ $violation->student->name ?? '-' }}</td>
                 <td style="border:1px solid #ddd;padding:8px;">{{ $violation->rule->name ?? '-' }}</td>
                 <td style="border:1px solid #ddd;padding:8px;">{{ $violation->rule->points ?? '-' }}</td>
-                <td style="border:1px solid #ddd;padding:8px;">{{ $violation->date }}</td>
+                <td style="border:1px solid #ddd;padding:8px;">{{ $violation->created_at ? $violation->created_at->format('Y-m-d') : '-' }}</td>
             </tr>
         @empty
             <tr>
