@@ -1,7 +1,6 @@
 @extends('landing.layout.app', ['title' => 'Login / Register'])
 
 @push('style')
-@push('style')
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 
@@ -11,12 +10,8 @@ body {
 
 /* ================= CONTAINER ================= */
 .auth-container {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    min-height: 700px;
     background: radial-gradient(circle at top, #1e293b 0%, #020617 60%);
-    padding: 1rem;
 }
 
 /* ================= CARD ================= */
@@ -185,10 +180,10 @@ body {
 </style>
 @endpush
 
-@endpush
 
 @section('content')
-<div class="auth-container">
+
+<div class="auth-container max-sm:mb-20 lg:h-[800px] flex justify-center max-sm:items-center lg:pt-10">
     <div class="flip-card" id="flipCard">
         <button class="switch-btn" id="switchBtn"
             type="button"
@@ -220,7 +215,7 @@ body {
                 </form>
             </div>
             <!-- Register Form -->
-            <div class="flip-card-back">
+            <div class="flip-card-back h-fit lg:pb-20">
                 <div class="auth-title">Register</div>
                 <form class="auth-form" method="POST" action="{{ route('auth.registersiswa') }}">
                     @csrf
@@ -270,6 +265,7 @@ body {
             </div>
         </div>
     </div>
+</div>
 </div>
 @endsection
 
