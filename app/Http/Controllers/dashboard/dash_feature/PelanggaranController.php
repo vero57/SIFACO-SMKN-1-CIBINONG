@@ -10,10 +10,22 @@ use Illuminate\Support\Facades\Auth;
 
 class PelanggaranController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        // Check if it's an AJAX request
+        if ($request->ajax() || $request->wantsJson()) {
+            return $this->searchAjax($request);
+        }
+
         $user = Auth::user();
-        $query = \App\Models\ViolationPoint::with(['student.classes', 'rule'])->orderByDesc('created_at');
+        $search = $request->input('search');
+        $query = \App\Models\ViolationPoint::with(['student.classes', 'rule'])
+            ->when($search, function ($q) use ($search) {
+                $q->whereHas('student', function ($sq) use ($search) {
+                    $sq->where('name', 'like', '%' . $search . '%');
+                });
+            })
+            ->orderByDesc('created_at');
 
         // Jika user adalah guru (bukan admin), filter hanya murid di kelas yang diwalikan
         if ($user->role && strtolower($user->role->name) === 'guru') {
@@ -29,8 +41,43 @@ class PelanggaranController extends Controller
         }
         // Admin bisa melihat semua
 
+        $violations = $query->paginate(10)->appends(['search' => $search]);
+        return view('dashboard.page.pelanggaran_page.index', compact('violations', 'search'));
+    }
+
+    /**
+     * Search pelanggaran via AJAX
+     */
+    public function searchAjax(Request $request)
+    {
+        $user = Auth::user();
+        $search = $request->input('search');
+        $query = \App\Models\ViolationPoint::with(['student.classes', 'rule'])
+            ->when($search, function ($q) use ($search) {
+                $q->whereHas('student', function ($sq) use ($search) {
+                    $sq->where('name', 'like', '%' . $search . '%');
+                });
+            })
+            ->orderByDesc('created_at');
+
+        // Jika user adalah guru (bukan admin), filter hanya murid di kelas yang diwalikan
+        if ($user->role && strtolower($user->role->name) === 'guru') {
+            // Ambil kelas yang diwalikan oleh guru ini
+            $kelasWali = \App\Models\ClassModel::where('walas_id', $user->id)->first();
+            if ($kelasWali) {
+                $studentIds = $kelasWali->students()->pluck('users.id')->toArray();
+                $query->whereIn('student_id', $studentIds);
+            } else {
+                // Jika tidak wali kelas, tampilkan kosong
+                $query->whereRaw('0=1');
+            }
+        }
+
         $violations = $query->get();
-        return view('dashboard.page.pelanggaran_page.index', compact('violations'));
+        return response()->json([
+            'data' => $violations,
+            'info' => "Ditemukan {$violations->count()} pelanggaran"
+        ]);
     }
 
     public function show($id)

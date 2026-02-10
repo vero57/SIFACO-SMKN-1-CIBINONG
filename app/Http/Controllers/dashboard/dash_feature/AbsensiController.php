@@ -14,6 +14,11 @@ class AbsensiController extends Controller
 {
     public function index(Request $request)
     {
+        // Check if it's an AJAX request
+        if ($request->ajax() || $request->wantsJson()) {
+            return $this->searchAjax($request);
+        }
+
         $search = $request->input('search');
         $kelas_id = $request->input('kelas');
         $status_id = $request->input('status');
@@ -65,6 +70,50 @@ class AbsensiController extends Controller
         $statusList = AttendanceStatus::orderBy('name')->get();
 
         return view('dashboard.page.absensi_page.index', compact('attendances', 'search', 'kelas_id', 'status_id', 'tanggal', 'kelasList', 'statusList'));
+    }
+
+    /**
+     * Search presensi via AJAX
+     */
+    public function searchAjax(Request $request)
+    {
+        $search = $request->input('search');
+        $kelas_id = $request->input('kelas');
+        $status_id = $request->input('status');
+        $tanggal = $request->input('tanggal');
+
+        $attendances = Attendance::with(['student', 'status', 'student.studentDetail', 'student.classes'])
+            ->when($search, function ($query) use ($search) {
+                $query->whereHas('student', function ($q) use ($search) {
+                    $q->where('name', 'like', '%' . $search . '%')
+                        ->orWhereHas('studentDetail', function ($q2) use ($search) {
+                            $q2->where('nis', 'like', '%' . $search . '%')
+                                ->orWhere('nisn', 'like', '%' . $search . '%');
+                        })
+                        ->orWhereHas('classes', function ($q3) use ($search) {
+                            $q3->where('name', 'like', '%' . $search . '%');
+                        });
+                });
+            })
+            ->when($kelas_id, function ($query) use ($kelas_id) {
+                $query->whereHas('student.classes', function ($q) use ($kelas_id) {
+                    $q->where('classes.id', $kelas_id);
+                });
+            })
+            ->when($status_id, function ($query) use ($status_id) {
+                $query->where('status_id', $status_id);
+            })
+            ->when($tanggal, function ($query) use ($tanggal) {
+                $query->where('date', $tanggal);
+            })
+            ->orderByDesc('date')
+            ->orderByDesc('time_in')
+            ->get();
+
+        return response()->json([
+            'data' => $attendances,
+            'info' => "Ditemukan {$attendances->count()} presensi"
+        ]);
     }
 
     public function show($attendance_id)
