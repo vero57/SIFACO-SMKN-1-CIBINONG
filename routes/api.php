@@ -29,4 +29,9 @@ Route::middleware([CheckApiKey::class])->group(function () {
             ->get();
     });
 
+    // Endpoint user + role, pakai token
+    Route::get('/users', function (Request $request) {
+        return \App\Models\User::with('role')->get();
+    });
+
 });
