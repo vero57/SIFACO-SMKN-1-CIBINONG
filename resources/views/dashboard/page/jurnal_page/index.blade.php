@@ -28,8 +28,8 @@
                 </div>
 
                 <div class="flex items-center gap-2 md:gap-3 w-full md:w-auto">
-                    <input type="search" placeholder="Cari nama siswa / pelajaran" class="flex-1 md:flex-none bg-slate-900 text-slate-200 border border-slate-700 rounded px-2 md:px-3 py-1 md:py-2 text-xs md:text-sm" />
-                    <button class="bg-purple-600 hover:bg-purple-500 text-white px-2 md:px-3 py-1 md:py-2 rounded text-xs md:text-sm">Search</button>
+                    <input type="search" id="jurnal-search-input" placeholder="Cari nama siswa / pelajaran" class="flex-1 md:flex-none bg-slate-900 text-slate-200 border border-slate-700 rounded px-2 md:px-3 py-1 md:py-2 text-xs md:text-sm" />
+                    <button type="button" id="jurnal-search-btn" class="bg-purple-600 hover:bg-purple-500 text-white px-2 md:px-3 py-1 md:py-2 rounded text-xs md:text-sm">Search</button>
                 </div>
             </div>
 
@@ -45,7 +45,7 @@
                         </tr>
                     </thead>
 
-                    <tbody class="divide-y divide-slate-700">
+                    <tbody class="divide-y divide-slate-700" id="jurnal-table-body">
                         @if(isset($journals) && $journals->count())
                             @foreach($journals as $idx => $j)
                                 @php
@@ -145,36 +145,151 @@
 
 @push('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    const tabButtons = document.querySelectorAll('.tab-btn');
-    const colName = document.querySelector('.col-name');
+    // AJAX Search untuk Jurnal - tanpa page reload
+    const searchInput = document.querySelector('#jurnal-search-input');
+    const searchBtn = document.querySelector('#jurnal-search-btn');
+    const tableBody = document.querySelector('#jurnal-table-body');
+    let debounceTimer = null;
 
-    const showView = (view) => {
-        tabButtons.forEach(b => {
-            if (b.dataset.view === view) {
-                b.classList.add('bg-slate-700','text-white');
-                b.classList.remove('text-slate-300', 'hover:text-white'); //
-            } else {
-                b.classList.remove('bg-slate-700','text-white');
-                b.classList.add('text-slate-300', 'hover:text-white'); //
+    if (searchBtn) {
+        searchBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            performSearch();
+        });
+    }
+
+    if (searchInput) {
+        searchInput.addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') {
+                performSearch();
+                return;
             }
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                performSearch();
+            }, 300);
+        });
+    }
+
+    function performSearch() {
+        const searchValue = searchInput.value || '';
+        const params = new URLSearchParams();
+        params.append('search', searchValue);
+
+        fetch(`{{ route("dashboard.jurnal") }}?${params.toString()}`, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            }
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                renderResults(data);
+            })
+            .catch(error => {
+                console.error('Search error:', error);
+                showError('Terjadi kesalahan saat mencari data');
+            });
+    }
+
+    function renderResults(data) {
+        if (!tableBody) return;
+
+        tableBody.innerHTML = '';
+
+        if (!data.data || data.data.length === 0) {
+            tableBody.innerHTML = `<tr><td colspan="5" class="px-4 py-3 text-center text-slate-400">Data tidak ditemukan</td></tr>`;
+            return;
+        }
+
+        data.data.forEach((journal, index) => {
+            const student = journal.student;
+            const subject = journal.subject;
+            const initial = student?.name ? student.name.charAt(0).toUpperCase() : 'U';
+            const createdAt = new Date(journal.created_at).toLocaleDateString('id-ID');
+
+            const row = `
+                <tr class="hover:bg-slate-800/40">
+                    <td class="px-4 py-3 text-slate-200 text-sm align-center">${index + 1}</td>
+                    <td class="px-4 py-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-purple-700 flex items-center justify-center text-white font-semibold">
+                                ${initial}
+                            </div>
+                            <div>
+                                <div class="view-student text-slate-200 font-medium text-sm">${student?.name || 'Nama Tidak Ditemukan'}</div>
+                                <div class="view-class text-slate-200 font-medium text-sm hidden">${student?.classes?.[0]?.name || '-'}</div>
+                                <div class="text-slate-400 text-xs">ID: ${journal.student_id}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-4 py-3 text-slate-200 text-sm">
+                        <div class="font-medium">${subject?.name || 'Pelajaran Tidak Ditemukan'}</div>
+                        <div class="text-slate-400 text-xs">${createdAt}</div>
+                    </td>
+                    <td class="px-4 py-3 text-slate-200 text-sm">
+                        <div class="text-sm text-slate-200 line-clamp-2" title="${journal.description}">
+                            ${journal.description}
+                        </div>
+                    </td>
+                    <td class="px-4 py-3 text-slate-200 text-sm">
+                        <a href="/dashboard/jurnal/${journal.id}" class="inline-block bg-blue-500 hover:bg-blue-400 text-white px-3 py-1 rounded text-xs font-semibold mr-2">
+                            <i class="fas fa-eye"></i> Detail
+                        </a>
+                    </td>
+                </tr>
+            `;
+            tableBody.insertAdjacentHTML('beforeend', row);
+        });
+    }
+
+    function showError(message) {
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: message,
+                timer: 3000,
+                showConfirmButton: false
+            });
+        } else {
+            alert(message);
+        }
+    }
+
+    // Tab switching functionality
+    document.addEventListener('DOMContentLoaded', function () {
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        const colName = document.querySelector('.col-name');
+
+        const showView = (view) => {
+            tabButtons.forEach(b => {
+                if (b.dataset.view === view) {
+                    b.classList.add('bg-slate-700','text-white');
+                    b.classList.remove('text-slate-300', 'hover:text-white');
+                } else {
+                    b.classList.remove('bg-slate-700','text-white');
+                    b.classList.add('text-slate-300', 'hover:text-white');
+                }
+            });
+
+            if (colName) colName.textContent = (view === 'student') ? 'Nama Siswa' : 'Kelas';
+
+            document.querySelectorAll('.view-student').forEach(el => el.classList.toggle('hidden', view !== 'student'));
+            document.querySelectorAll('.view-class').forEach(el => el.classList.toggle('hidden', view !== 'class'));
+        };
+
+        tabButtons.forEach(btn => {
+            btn.addEventListener('click', () => showView(btn.dataset.view));
         });
 
-
-        if (colName) colName.textContent = (view === 'student') ? 'Nama Siswa' : 'Kelas';
-
-
-        document.querySelectorAll('.view-student').forEach(el => el.classList.toggle('hidden', view !== 'student'));
-        document.querySelectorAll('.view-class').forEach(el => el.classList.toggle('hidden', view !== 'class'));
-    };
-
-
-    tabButtons.forEach(btn => {
-        btn.addEventListener('click', () => showView(btn.dataset.view));
+        showView('student');
     });
-
-
-    showView('student');
-});
 </script>
 @endpush

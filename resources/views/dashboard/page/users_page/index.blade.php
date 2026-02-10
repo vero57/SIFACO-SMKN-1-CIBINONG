@@ -31,9 +31,9 @@
                 </select>
             </div>
 
-            <form method="GET" action="{{ route('dashboard.users.index') }}" class="flex items-center gap-3">
-                <input type="search" name="search" value="{{ request('search') }}" placeholder="Cari nama/email" class="bg-slate-900 text-slate-200 border border-slate-700 rounded px-3 py-2 text-sm" />
-                <button type="submit" class="bg-green-600 hover:bg-green-500 text-white px-3 py-2 rounded text-sm">Search</button>
+            <form class="flex items-center gap-3" id="user-search-form">
+                <input type="search" id="user-search-input" name="search" value="{{ request('search') }}" placeholder="Cari nama/email" class="bg-slate-900 text-slate-200 border border-slate-700 rounded px-3 py-2 text-sm" />
+                <button type="button" id="user-search-btn" class="bg-green-600 hover:bg-green-500 text-white px-3 py-2 rounded text-sm">Search</button>
             </form>
         </div>
 
@@ -49,7 +49,7 @@
                     </tr>
                 </thead>
 
-                <tbody class="divide-y divide-slate-700">
+                <tbody class="divide-y divide-slate-700" id="user-table-body">
                     @if(isset($users) && $users->count())
                         @foreach($users as $user)
                             <tr class="hover:bg-slate-800/40">
@@ -111,6 +111,112 @@
 
 @push('scripts')
 <script>
+    // AJAX Search untuk Users - tanpa page reload
+    const searchInput = document.querySelector('#user-search-input');
+    const searchBtn = document.querySelector('#user-search-btn');
+    const tableBody = document.querySelector('#user-table-body');
+    let debounceTimer = null;
+
+    // Handle search on button click
+    if (searchBtn) {
+        searchBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            performSearch();
+        });
+    }
+
+    // Handle search on input keyup
+    if (searchInput) {
+        searchInput.addEventListener('keyup', (e) => {
+            // Perform search immediately on Enter
+            if (e.key === 'Enter') {
+                performSearch();
+                return;
+            }
+            // Debounce untuk typing
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                performSearch();
+            }, 300);
+        });
+    }
+
+    function performSearch() {
+        const searchValue = searchInput.value || '';
+        const params = new URLSearchParams();
+        params.append('search', searchValue);
+
+        fetch(`{{ route("dashboard.users.index") }}?${params.toString()}`, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            }
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                renderResults(data);
+            })
+            .catch(error => {
+                console.error('Search error:', error);
+                showError('Terjadi kesalahan saat mencari data');
+            });
+    }
+
+    function renderResults(data) {
+        if (!tableBody) return;
+
+        tableBody.innerHTML = '';
+
+        if (!data.data || data.data.length === 0) {
+            tableBody.innerHTML = `<tr><td colspan="5" class="px-4 py-3 text-center text-slate-400">Data tidak ditemukan</td></tr>`;
+            return;
+        }
+
+        data.data.forEach((user) => {
+            const roleHtml = user.role
+                ? `<span class="inline-block px-2 py-1 text-xs font-medium rounded bg-slate-700 mr-1">${user.role.name}</span>`
+                : `<span class="text-slate-400">-</span>`;
+
+            const row = `
+                <tr class="hover:bg-slate-800/40">
+                    <td class="px-4 py-3 text-slate-200 text-sm">${user.name}</td>
+                    <td class="px-4 py-3 text-slate-200 text-sm">${user.email}</td>
+                    <td class="px-4 py-3 text-slate-200 text-sm">${user.phone_number || '-'}</td>
+                    <td class="px-4 py-3 text-slate-200 text-sm">${roleHtml}</td>
+                    <td class="px-4 py-3 text-slate-200 text-sm">
+                        <a href="/dashboard/users/${user.id}/edit" class="inline-block bg-yellow-500 hover:bg-yellow-400 text-white px-3 py-1 rounded text-xs font-semibold mr-2">
+                            <i class="fas fa-edit"></i> Edit
+                        </a>
+                        <button type="button" onclick="confirmDelete(${user.id}, '${user.name}')" class="bg-red-600 hover:bg-red-500 text-white px-3 py-1 rounded text-xs font-semibold">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </td>
+                </tr>
+            `;
+            tableBody.insertAdjacentHTML('beforeend', row);
+        });
+    }
+
+    function showError(message) {
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: message,
+                timer: 3000,
+                showConfirmButton: false
+            });
+        } else {
+            alert(message);
+        }
+    }
+
     @if(session('success'))
         Swal.fire({
             icon: 'success',
@@ -133,7 +239,15 @@
             cancelButtonText: 'Batal'
         }).then((result) => {
             if (result.isConfirmed) {
-                document.getElementById('delete-form-' + userId).submit();
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = `/dashboard/users/${userId}`;
+                form.innerHTML = `
+                    @csrf
+                    @method('DELETE')
+                `;
+                document.body.appendChild(form);
+                form.submit();
             }
         });
     }

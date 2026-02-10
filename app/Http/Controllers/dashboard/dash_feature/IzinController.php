@@ -9,10 +9,44 @@ use Dompdf\Dompdf;
 
 class IzinController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $permissions = Permission::with(['student'])->paginate(10);
-        return view('dashboard.page.izin_page.index', compact('permissions'));
+        // Check if it's an AJAX request
+        if ($request->ajax() || $request->wantsJson()) {
+            return $this->searchAjax($request);
+        }
+
+        $search = $request->input('search');
+        $permissions = Permission::with(['student'])
+            ->when($search, function ($q) use ($search) {
+                $q->whereHas('student', function ($sq) use ($search) {
+                    $sq->where('name', 'like', '%' . $search . '%');
+                });
+            })
+            ->paginate(10)
+            ->appends(['search' => $search]);
+
+        return view('dashboard.page.izin_page.index', compact('permissions', 'search'));
+    }
+
+    /**
+     * Search izin via AJAX
+     */
+    public function searchAjax(Request $request)
+    {
+        $search = $request->input('search');
+        $permissions = Permission::with(['student'])
+            ->when($search, function ($q) use ($search) {
+                $q->whereHas('student', function ($sq) use ($search) {
+                    $sq->where('name', 'like', '%' . $search . '%');
+                });
+            })
+            ->get();
+
+        return response()->json([
+            'data' => $permissions,
+            'info' => "Ditemukan {$permissions->count()} izin"
+        ]);
     }
 
     public function show($id)
