@@ -14,6 +14,11 @@ class UsersController extends Controller
      */
     public function index()
     {
+        // Check if it's an AJAX request
+        if (request()->ajax() || request()->wantsJson()) {
+            return $this->searchAjax();
+        }
+
         $query = User::with('role');
         if (request()->has('search') && request('search')) {
             $search = request('search');
@@ -24,6 +29,29 @@ class UsersController extends Controller
         }
         $users = $query->paginate(10)->appends(['search' => request('search')]);
         return view('dashboard.page.users_page.index', compact('users'));
+    }
+
+    /**
+     * Search users via AJAX
+     */
+    public function searchAjax()
+    {
+        $query = User::with('role');
+
+        if (request()->has('search') && request('search')) {
+            $search = request('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        $users = $query->get();
+
+        return response()->json([
+            'data' => $users,
+            'info' => "Ditemukan {$users->count()} user"
+        ]);
     }
 
     /**

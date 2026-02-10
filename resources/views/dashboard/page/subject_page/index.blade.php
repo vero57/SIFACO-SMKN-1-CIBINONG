@@ -35,9 +35,9 @@
                     <option>50</option>
                 </select>
             </div>
-            <form method="GET" action="{{ route('dashboard.subjects.index') }}" class="flex items-center gap-3">
-                <input type="search" name="search" placeholder="Cari nama kelas, mapel, atau guru" value="{{ request('search', $search ?? '') }}" class="bg-slate-900 text-slate-200 border border-slate-700 rounded px-3 py-2 text-sm" />
-                <button class="bg-green-600 hover:bg-green-500 text-white px-3 py-2 rounded text-sm">Search</button>
+            <form class="flex items-center gap-3" id="subject-search-form">
+                <input type="search" id="subject-search-input" name="search" placeholder="Cari nama kelas, mapel, atau guru" value="{{ request('search', $search ?? '') }}" class="bg-slate-900 text-slate-200 border border-slate-700 rounded px-3 py-2 text-sm" />
+                <button type="button" id="subject-search-btn" class="bg-green-600 hover:bg-green-500 text-white px-3 py-2 rounded text-sm">Search</button>
             </form>
         </div>
 
@@ -51,7 +51,7 @@
                         <th class="px-4 py-3 w-[200px]">Action</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-700">
+                <tbody class="divide-y divide-slate-700" id="subject-table-body">
                 @if(isset($subjects) && $subjects->count())
                     @foreach($subjects as $classSubject)
                         <tr class="hover:bg-slate-800/40">
@@ -93,6 +93,112 @@
 
 @push('scripts')
 <script>
+    // AJAX Search untuk Mata Pelajaran - tanpa page reload
+    const searchInput = document.querySelector('#subject-search-input');
+    const searchBtn = document.querySelector('#subject-search-btn');
+    const tableBody = document.querySelector('#subject-table-body');
+    let debounceTimer = null;
+
+    if (searchBtn) {
+        searchBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            performSearch();
+        });
+    }
+
+    if (searchInput) {
+        searchInput.addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') {
+                performSearch();
+                return;
+            }
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                performSearch();
+            }, 300);
+        });
+    }
+
+    function performSearch() {
+        const searchValue = searchInput.value || '';
+        const params = new URLSearchParams();
+        params.append('search', searchValue);
+
+        fetch(`{{ route("dashboard.subjects.index") }}?${params.toString()}`, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            }
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                renderResults(data);
+            })
+            .catch(error => {
+                console.error('Search error:', error);
+                showError('Terjadi kesalahan saat mencari data');
+            });
+    }
+
+    function renderResults(data) {
+        if (!tableBody) return;
+
+        tableBody.innerHTML = '';
+
+        if (!data.data || data.data.length === 0) {
+            tableBody.innerHTML = `<tr><td colspan="4" class="px-4 py-3 text-center text-slate-400">Data tidak ditemukan</td></tr>`;
+            return;
+        }
+
+        const role = '{{ $role }}';
+
+        data.data.forEach((classSubject) => {
+            let actionHtml = `
+                <a href="/dashboard/subjects/${classSubject.id}/edit" class="inline-block bg-yellow-500 hover:bg-yellow-400 text-white px-3 py-1 rounded text-xs font-semibold mr-2">
+                    <i class="fas fa-edit"></i> Edit
+                </a>
+            `;
+
+            if (role === 'Admin') {
+                actionHtml += `
+                    <button type="button" onclick="confirmDelete('${classSubject.id}', '${classSubject.subject?.name || 'Mata Pelajaran'}')" class="bg-red-600 hover:bg-red-500 text-white px-3 py-1 rounded text-xs font-semibold">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
+                `;
+            }
+
+            const row = `
+                <tr class="hover:bg-slate-800/40">
+                    <td class="px-4 py-3 text-slate-200 text-sm">${classSubject.subject?.name || '-'}</td>
+                    <td class="px-4 py-3 text-slate-200 text-sm">${classSubject.class?.name || '-'}</td>
+                    <td class="px-4 py-3 text-slate-200 text-sm">${classSubject.teacher?.name || '-'}</td>
+                    <td class="px-4 py-3 text-slate-200 text-sm">${actionHtml}</td>
+                </tr>
+            `;
+            tableBody.insertAdjacentHTML('beforeend', row);
+        });
+    }
+
+    function showError(message) {
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: message,
+                timer: 3000,
+                showConfirmButton: false
+            });
+        } else {
+            alert(message);
+        }
+    }
+
     @if(session('success'))
         Swal.fire({
             icon: 'success',
@@ -115,7 +221,15 @@
             cancelButtonText: 'Batal'
         }).then((result) => {
             if (result.isConfirmed) {
-                document.getElementById('delete-form-' + id).submit();
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = `/dashboard/subjects/${id}`;
+                form.innerHTML = `
+                    @csrf
+                    @method('DELETE')
+                `;
+                document.body.appendChild(form);
+                form.submit();
             }
         });
     }

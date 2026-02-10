@@ -14,6 +14,11 @@ class SiswaController extends Controller
 {
     public function index(Request $request)
     {
+        // Check if it's an AJAX request
+        if ($request->ajax() || $request->wantsJson()) {
+            return $this->searchAjax($request);
+        }
+
         $search = $request->input('search');
         $users = User::whereHas('role', function ($q) {
             $q->where('name', 'Siswa');
@@ -31,6 +36,34 @@ class SiswaController extends Controller
             ->appends(['search' => $search]);
 
         return view('dashboard.page.siswa_page.index', compact('users', 'search'));
+    }
+
+    /**
+     * Search siswa via AJAX
+     */
+    public function searchAjax(Request $request)
+    {
+        $search = $request->input('search');
+        $users = User::with('studentDetail')
+            ->whereHas('role', function ($q) {
+                $q->where('name', 'Siswa');
+            })
+            ->when($search, function ($query) use ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', '%' . $search . '%')
+                        ->orWhere('email', 'like', '%' . $search . '%')
+                        ->orWhereHas('studentDetail', function ($q2) use ($search) {
+                            $q2->where('nis', 'like', '%' . $search . '%')
+                                ->orWhere('nisn', 'like', '%' . $search . '%');
+                        });
+                });
+            })
+            ->get();
+
+        return response()->json([
+            'data' => $users,
+            'info' => "Ditemukan {$users->count()} siswa"
+        ]);
     }
 
     public function createDetail($user_id)
