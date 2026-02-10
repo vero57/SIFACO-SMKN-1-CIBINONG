@@ -40,9 +40,9 @@
                 </select>
             </div>
 
-            <form method="GET" action="{{ route('dashboard.siswa') }}" class="flex items-center gap-3">
-                <input type="search" name="search" placeholder="Cari nama/NIS/NISN" value="{{ request('search', $search ?? '') }}" class="bg-slate-900 text-slate-200 border border-slate-700 rounded px-3 py-2 text-sm" />
-                <button class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 rounded text-sm">Search</button>
+            <form class="flex items-center gap-3" id="siswa-search-form">
+                <input type="search" id="siswa-search-input" name="search" placeholder="Cari nama/NIS/NISN" value="{{ request('search', $search ?? '') }}" class="bg-slate-900 text-slate-200 border border-slate-700 rounded px-3 py-2 text-sm" />
+                <button type="button" id="siswa-search-btn" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 rounded text-sm">Search</button>
             </form>
         </div>
 
@@ -62,7 +62,7 @@
                     </tr>
                 </thead>
 
-                <tbody class="divide-y divide-slate-700">
+                <tbody class="divide-y divide-slate-700" id="siswa-table-body">
                 @if(isset($users) && $users->count())
                     @foreach($users as $user)
                         @php
@@ -122,6 +122,118 @@
 
 @push('scripts')
 <script>
+    // AJAX Search untuk Siswa - tanpa page reload
+    const searchInput = document.querySelector('#siswa-search-input');
+    const searchBtn = document.querySelector('#siswa-search-btn');
+    const tableBody = document.querySelector('#siswa-table-body');
+    let debounceTimer = null;
+
+    if (searchBtn) {
+        searchBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            performSearch();
+        });
+    }
+
+    if (searchInput) {
+        searchInput.addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') {
+                performSearch();
+                return;
+            }
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                performSearch();
+            }, 300);
+        });
+    }
+
+    function performSearch() {
+        const searchValue = searchInput.value || '';
+        const params = new URLSearchParams();
+        params.append('search', searchValue);
+
+        fetch(`{{ route("dashboard.siswa") }}?${params.toString()}`, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            }
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                renderResults(data);
+            })
+            .catch(error => {
+                console.error('Search error:', error);
+                showError('Terjadi kesalahan saat mencari data');
+            });
+    }
+
+    function renderResults(data) {
+        if (!tableBody) return;
+
+        tableBody.innerHTML = '';
+
+        if (!data.data || data.data.length === 0) {
+            tableBody.innerHTML = `<tr><td colspan="6" class="px-4 py-3 text-center text-slate-400">Data tidak ditemukan</td></tr>`;
+            return;
+        }
+
+        data.data.forEach((user) => {
+            const detail = user.student_detail;
+            const photoHtml = detail && detail.photo
+                ? `<img src="/storage/${detail.photo}" alt="Foto" class="w-12 h-12 object-cover rounded" />`
+                : `<span class="text-slate-400">-</span>`;
+
+            const hasDetail = detail !== null;
+            const detailUrl = hasDetail
+                ? `/dashboard/siswa/${user.id}/detail/edit`
+                : `/dashboard/siswa/${user.id}/detail/create`;
+
+            const row = `
+                <tr class="hover:bg-slate-800/40">
+                    <td class="px-4 py-3 text-slate-200 text-sm">${user.name}</td>
+                    <td class="px-4 py-3 text-slate-200 text-sm">${user.email || '-'}</td>
+                    <td class="px-4 py-3 text-slate-200 text-sm">${(detail && detail.gender) ? detail.gender : '-'}</td>
+                    <td class="px-4 py-3 text-slate-200 text-sm">${(detail && detail.nis) ? detail.nis : '-'}</td>
+                    <td class="px-4 py-3 text-slate-200 text-sm">${photoHtml}</td>
+                    <td class="px-4 py-3 text-slate-200 text-sm flex flex-row items-center gap-1">
+                        <a href="${detailUrl}" class="w-full flex flex-row gap-1 justify-center items-center bg-yellow-500 hover:bg-yellow-400 text-white px-1 py-1 rounded text-xs font-semibold mr-2">
+                            <i class="fas fa-edit"></i> <p class="">${hasDetail ? 'Edit Detail' : 'Add Detail'}</p>
+                        </a>
+                        <a href="/dashboard/siswa/${user.id}/detail" class="flex flex-row gap-1 items-center bg-blue-500 hover:bg-blue-400 text-white px-3 py-1 rounded text-xs font-semibold mr-2">
+                            <i class="fas fa-eye"></i> Detail
+                        </a>
+                        <button type="button" onclick="confirmDelete('${user.id}', '${user.name}')" class="flex flex-row gap-1 items-center bg-red-600 hover:bg-red-500 text-white px-3 py-1 rounded text-xs font-semibold">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </td>
+                </tr>
+            `;
+            tableBody.insertAdjacentHTML('beforeend', row);
+        });
+    }
+
+    function showError(message) {
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: message,
+                timer: 3000,
+                showConfirmButton: false
+            });
+        } else {
+            alert(message);
+        }
+    }
+
     @if(session('success'))
         Swal.fire({
             icon: 'success',
@@ -144,7 +256,15 @@
             cancelButtonText: 'Batal'
         }).then((result) => {
             if (result.isConfirmed) {
-                document.getElementById('delete-form-' + userId).submit();
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = `/dashboard/users/${userId}`;
+                form.innerHTML = `
+                    @csrf
+                    @method('DELETE')
+                `;
+                document.body.appendChild(form);
+                form.submit();
             }
         });
     }
