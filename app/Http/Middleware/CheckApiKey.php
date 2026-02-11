@@ -18,7 +18,7 @@ class CheckApiKey
 
         $apiKey = $request->header('X-API-KEY');
 
-        if ($apiKey !== env('MY_API_KEY')) {
+        if ($apiKey !== config('app.my_api_key')) {
             return response()->json([
                 'message' => 'NGENTOT ANJING KONTOL MEMEK, SALAH API KEY KONTOL. MENDING LU NGEWE DAH DARIPADA NYARI API KEY KONTOL!',
             ], 401);

@@ -14,6 +14,7 @@ Route::get('/user', function (Request $request) {
 
 Route::middleware([CheckApiKey::class])->group(function () {
     
+    // endpoint data absen
     Route::get('/data-absen', function (Request $request) {
         return DB::table('attendances')
             ->join('users', 'attendances.student_id', '=', 'users.id')
@@ -29,9 +30,35 @@ Route::middleware([CheckApiKey::class])->group(function () {
             ->get();
     });
 
-    // Endpoint user + role, pakai token
+    // Endpoint user dengan relasi role, classes, dan students di setiap class
     Route::get('/users', function (Request $request) {
-        return \App\Models\User::with('role')->get();
+        return \App\Models\User::with([
+            'role',
+            'classes.students'
+        ])->get();
+    });
+
+    // Endpoint untuk get semua data classes beserta walas dan students
+    Route::get('/classes', function () {
+        return \App\Models\ClassModel::with(['walas', 'students'])->get();
+    });
+
+    // Endpoint untuk get semua data class_student
+    Route::get('/class-students', function () {
+        return \App\Models\ClassStudent::with([
+            'class' => function ($query) {
+                $query->select('id', 'name');
+            },
+            'student' => function ($query) {
+                $query->select('id', 'name');
+            }
+        ])->get()->map(function ($item) {
+            return [
+                'id' => $item->id,
+                'class_name' => $item->class->name ?? null,
+                'student_name' => $item->student->name ?? null,
+            ];
+        });
     });
 
 });
