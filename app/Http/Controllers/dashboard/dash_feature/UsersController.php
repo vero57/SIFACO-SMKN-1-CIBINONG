@@ -85,7 +85,7 @@ class UsersController extends Controller
         $user->password = bcrypt($request->password);
         $user->save();
 
-        return redirect()->route('dashboard.users.index')->with('success', 'User created!');
+        return redirect()->route('dashboard.users.index')->with('success', 'User berhasil ditambahkan');
     }
 
     /**

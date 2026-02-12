@@ -39,6 +39,25 @@
         </form>
     </div>
 </div>
+
+<script>
+    @if($errors->any())
+        document.addEventListener('DOMContentLoaded', function() {
+            const errors = {
+                @foreach($errors->all() as $error)
+                    '{{ $loop->index }}': '{{ $error }}',
+                @endforeach
+            };
+            showValidationErrors(errors, 'Validasi Input Gagal');
+        });
+    @endif
+
+    @if(session('success'))
+        document.addEventListener('DOMContentLoaded', function() {
+            showSuccess('{{ session("success") }}', 'Berhasil!');
+        });
+    @endif
+</script>
 @else
 <div class="content-section max-w-xl mx-auto">
     <div class="bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 border border-slate-700 text-center text-slate-300">

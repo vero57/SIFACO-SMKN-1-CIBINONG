@@ -76,6 +76,23 @@
         select.addEventListener('change', toggleNewField);
         toggleNewField();
     });
+
+    @if($errors->any())
+        document.addEventListener('DOMContentLoaded', function() {
+            const errors = {
+                @foreach($errors->all() as $error)
+                    '{{ $loop->index }}': '{{ $error }}',
+                @endforeach
+            };
+            showValidationErrors(errors, 'Validasi Input Gagal');
+        });
+    @endif
+
+    @if(session('success'))
+        document.addEventListener('DOMContentLoaded', function() {
+            showSuccess('{{ session("success") }}', 'Berhasil!');
+        });
+    @endif
 </script>
 @else
 <div class="content-section max-w-xl mx-auto">
