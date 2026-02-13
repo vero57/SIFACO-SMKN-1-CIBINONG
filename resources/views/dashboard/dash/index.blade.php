@@ -82,7 +82,7 @@
 
             <!-- <div class="bg-slate-800/50 backdrop-blur-sm rounded-xl p-4 md:p-6 border border-slate-700 mb-6">
                 <h3 class="text-base md:text-lg font-semibold text-white mb-2 md:mb-4">Siswa dengan Izin Approved</h3>
-                @if($approvedPermissions->count() > 0)
+                @if($approvedPermissionsToday->count() > 0)
                     <div class="overflow-x-auto">
                         <table class="w-full text-sm text-left text-slate-300">
                             <thead class="text-xs text-slate-400 uppercase bg-slate-700">
@@ -94,7 +94,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach($approvedPermissions as $permission)
+                                @foreach($approvedPermissionsToday as $permission)
                                     <tr class="border-b border-slate-700 hover:bg-slate-700/50">
                                         <td class="px-4 py-3">{{ $permission->student->name ?? 'N/A' }}</td>
                                         <td class="px-4 py-3">
