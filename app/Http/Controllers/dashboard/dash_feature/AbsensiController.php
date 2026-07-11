@@ -8,7 +8,8 @@ use App\Models\Attendance;
 use App\Models\ClassModel;
 use App\Models\AttendanceStatus;
 use Illuminate\Http\Request;
-use Dompdf\Dompdf;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\AttendanceExport;
 
 class AbsensiController extends Controller
 {
@@ -122,21 +123,13 @@ class AbsensiController extends Controller
         return view('dashboard.page.absensi_page.show', compact('attendance'));
     }
 
-    public function exportPdf()
+    public function exportExcel()
     {
-        $attendances = Attendance::with(['student', 'status'])
+        $attendances = Attendance::with(['student', 'status', 'student.classes'])
             ->orderByDesc('date')
             ->orderByDesc('time_in')
             ->get();
 
-        $dompdf = new Dompdf();
-        $html = view('dashboard.page.absensi_page.pdf', compact('attendances'))->render();
-        $dompdf->loadHtml($html);
-        $dompdf->render();
-
-        return response($dompdf->output(), 200, [
-            'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'attachment; filename="daftar_absensi_siswa.pdf"'
-        ]);
+        return Excel::download(new AttendanceExport($attendances), 'daftar_absensi_siswa.xlsx');
     }
 }

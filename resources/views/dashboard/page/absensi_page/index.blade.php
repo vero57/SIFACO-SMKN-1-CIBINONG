@@ -16,7 +16,7 @@
             </div>
         </div>
         <div class="flex items-center">
-            <a href="{{ route('dashboard.absensi.exportPdf') }}" class="bg-green-600 hover:bg-green-500 text-white px-3 py-2 rounded text-sm">Ekspor Data</a>
+            <a href="{{ route('dashboard.absensi.exportExcel') }}" class="bg-green-600 hover:bg-green-500 text-white px-3 py-2 rounded text-sm">Ekspor Excel</a>
         </div>
     </div>
 

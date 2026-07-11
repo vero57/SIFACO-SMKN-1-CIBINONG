@@ -34,7 +34,7 @@ Route::middleware(['userakses:Admin,Guru'])->group(function () {
     // Presensi (Absensi)
     Route::get('/dashboard/absensi', [AbsensiController::class, 'index'])->name('dashboard.absensi');
     Route::get('/dashboard/absensi/{user_id}/show', [AbsensiController::class, 'show'])->name('dashboard.absensi.show');
-    Route::get('/dashboard/absensi/export/pdf', [AbsensiController::class, 'exportPdf'])->name('dashboard.absensi.exportPdf');
+    Route::get('/dashboard/absensi/export/excel', [AbsensiController::class, 'exportExcel'])->name('dashboard.absensi.exportExcel');
 
     // Jurnal
     Route::get('/dashboard/jurnal', [JurnalController::class, 'index'])->name('dashboard.jurnal');
