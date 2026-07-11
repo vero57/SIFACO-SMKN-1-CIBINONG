@@ -16,7 +16,7 @@
                 </div>
             </div>
             <div class="flex items-center">
-                <a href="{{ route('dashboard.pelanggaran.exportPdf') }}" class="bg-red-600 hover:bg-red-500 text-white px-3 py-2 rounded text-sm">Ekspor Data</a>
+                <a href="{{ route('dashboard.pelanggaran.exportExcel') }}" class="bg-red-600 hover:bg-red-500 text-white px-3 py-2 rounded text-sm">Ekspor Excel</a>
             </div>
         </div>
 

@@ -3,9 +3,10 @@
 namespace App\Http\Controllers\dashboard\dash_feature;
 
 use App\Http\Controllers\Controller;
+use App\Exports\JournalExport;
 use Illuminate\Http\Request;
 use App\Models\Journal;
-use Dompdf\Dompdf;
+use Maatwebsite\Excel\Facades\Excel;
 
 class JurnalController extends Controller
 {
@@ -61,18 +62,10 @@ class JurnalController extends Controller
         return view('dashboard.page.jurnal_page.show', compact('journal'));
     }
 
-    public function exportPdf()
+    public function exportExcel()
     {
         $journals = Journal::with(['student', 'subject'])->get();
 
-        $dompdf = new Dompdf();
-        $html = view('dashboard.page.jurnal_page.pdf', compact('journals'))->render();
-        $dompdf->loadHtml($html);
-        $dompdf->render();
-
-        return response($dompdf->output(), 200, [
-            'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'attachment; filename="daftar_jurnal_siswa.pdf"'
-        ]);
+        return Excel::download(new JournalExport($journals), 'daftar_jurnal_siswa.xlsx');
     }
 }

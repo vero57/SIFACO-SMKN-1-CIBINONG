@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers\dashboard\dash_feature;
 
+use App\Exports\ViolationExport;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\ViolationPoint;
-use Dompdf\Dompdf;
 use Illuminate\Support\Facades\Auth;
+use Maatwebsite\Excel\Facades\Excel;
 
 class PelanggaranController extends Controller
 {
@@ -96,14 +97,11 @@ class PelanggaranController extends Controller
         return view('dashboard.page.pelanggaran_page.show', compact('violation'));
     }
 
-    public function exportPdf()
+    public function exportExcel()
     {
         $violations = ViolationPoint::with(['rule', 'student'])->get();
-        return response((new \Dompdf\Dompdf)->loadHtml(
-            view('dashboard.page.pelanggaran_page.pdf', compact('violations'))
-        )->setPaper('A4', 'landscape')->render()->output())
-            ->header('Content-Type', 'application/pdf')
-            ->header('Content-Disposition', 'attachment; filename="pelanggaran.pdf"');
+
+        return Excel::download(new ViolationExport($violations), 'daftar_pelanggaran_siswa.xlsx');
     }
 
     public function destroy($id)

@@ -39,19 +39,19 @@ Route::middleware(['userakses:Admin,Guru'])->group(function () {
     // Jurnal
     Route::get('/dashboard/jurnal', [JurnalController::class, 'index'])->name('dashboard.jurnal');
     Route::get('/dashboard/jurnal/{id}/show', [JurnalController::class, 'show'])->name('dashboard.jurnal.show');
-    Route::get('/dashboard/jurnal/export/pdf', [JurnalController::class, 'exportPdf'])->name('dashboard.jurnal.exportPdf');
+    Route::get('/dashboard/jurnal/export/excel', [JurnalController::class, 'exportExcel'])->name('dashboard.jurnal.exportExcel');
 
     // Pelanggaran
     Route::get('/dashboard/pelanggaran', [PelanggaranController::class, 'index'])->name('dashboard.pelanggaran');
     Route::get('/dashboard/pelanggaran/{id}/show', [PelanggaranController::class, 'show'])->name('dashboard.pelanggaran.show');
-    Route::get('/dashboard/pelanggaran/export/pdf', [PelanggaranController::class, 'exportPdf'])->name('dashboard.pelanggaran.exportPdf');
+    Route::get('/dashboard/pelanggaran/export/excel', [PelanggaranController::class, 'exportExcel'])->name('dashboard.pelanggaran.exportExcel');
     Route::delete('/dashboard/pelanggaran/{id}/delete', [PelanggaranController::class, 'destroy'])->name('dashboard.pelanggaran.delete');
 
     // Izin
     Route::get('/dashboard/izin', [IzinController::class, 'index'])->name('dashboard.izin');
     Route::get('dashboard/izin/{id}', [IzinController::class, 'show'])->name('dashboard.izin.show');
     Route::post('/dashboard/izin/{id}/update-status', [IzinController::class, 'updateStatus'])->name('dashboard.izin.updateStatus');
-    Route::get('/dashboard/izin/export/pdf', [IzinController::class, 'exportPdf'])->name('dashboard.izin.exportPdf');
+    Route::get('/dashboard/izin/export/excel', [IzinController::class, 'exportExcel'])->name('dashboard.izin.exportExcel');
 });
 
 // Route khusus Admin (akses penuh, termasuk users & siswa)
