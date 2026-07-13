@@ -48,6 +48,7 @@
                             <img src="{{ asset('storage/' . $detail->photo) }}" alt="Foto" class="w-16 h-16 object-cover rounded-lg" />
                         </div>
                     @endif
+                    <p class="text-xs text-slate-400 mt-1">Max file 2mb. Format: jpg, png, jpeg</p>
                 </div>
             </div>
             <div class="flex gap-6 mt-6 w-full">
