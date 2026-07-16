@@ -71,5 +71,7 @@
             </div>
         </div>
     </div>
+
+    @include("landing.partials.nav")
 </section>
 @endsection

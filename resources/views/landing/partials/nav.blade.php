@@ -39,16 +39,16 @@
         </a>
     @endif
 
-    @if(request()->routeIs('landing.profile'))
-        <a href="{{ route('landing.profile') }}" class="flex flex-col items-center gap-xs text-primary font-bold transition-transform active:scale-95">
-        <span class="material-symbols-outlined !text-[24px]">person</span>
-        <span class="font-label-sm text-label-sm">Profil</span>
+    @if(request()->routeIs('feature.jurnal'))
+        <a href="{{ route('feature.jurnal') }}" class="flex flex-col items-center gap-xs text-primary font-bold transition-transform active:scale-95">
+        <span class="material-symbols-outlined !text-[24px]">book</span>
+        <span class="font-label-sm text-label-sm">Jurnal</span>
         <div class="w-1 h-1 bg-primary rounded-full mt-0.5"></div>
         </a>
     @else
-        <a href="{{ route('landing.profile') }}" class="flex flex-col items-center gap-xs text-on-surface-variant dark:text-outline-variant hover:text-primary transition-all active:scale-95">
-        <span class="material-symbols-outlined !text-[24px]">person</span>
-        <span class="font-label-sm text-label-sm">Profil</span>
+        <a href="{{ route('feature.jurnal') }}" class="flex flex-col items-center gap-xs text-on-surface-variant dark:text-outline-variant hover:text-primary transition-all active:scale-95">
+        <span class="material-symbols-outlined !text-[24px]">book</span>
+        <span class="font-label-sm text-label-sm">Jurnal</span>
         </a>
     @endif
   </nav>
