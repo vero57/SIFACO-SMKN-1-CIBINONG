@@ -95,7 +95,7 @@
                     @csrf
                 <!-- Kontainer Atas -->
                 <div class="izin flex items-center justify-center">
-                    <div class="w-full max-sm:max-w-md max-w-xl space-y-4">
+                    <div class="w-full max-sm:max-w-md max-w-xl space-y-4 md:space-y-6">
 
                     <div class="flex flex-col lg:flex-row gap-4">
                         <div class="flex flex-col lg:flex-row lg:gap-2 w-full">
@@ -128,7 +128,7 @@
                             <label for="description" class="block text-[#0b1c30] mb-1">Deskripsi / Alasan Detail</label>
                             <textarea id="description" name="description" rows="3" required class="w-full rounded-lg bg-[#eff4ff] max-sm:placeholder-shown:bg-white text-[#0b1c30] text-base border-2 border-[#e5e7eb] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600" placeholder="Berikan Penjelasan singkat mengenai izin"></textarea>
                         </div>
-                        <div class="flex flex-col items-center justify-center">
+                        <div class="flex flex-col items-center justify-center md:pb-4">
                             <div class="flex flex-col items-start w-full">
                                 <label for="drop-zone" class="block text-[#0b1c30] mb-1">Upload Surat Izin</label>
                             </div>
@@ -145,7 +145,7 @@
                             </div>
                             <input type="file" id="file-input" name="file[]" class="file-input" accept="image/*,application/pdf" required multiple>
                         </div>
-                        <button type="button" id="btn-berikutnya" class="w-full max-sm:mt-4 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 rounded-lg transition">Berikutnya</button>
+                        <button type="button" id="btn-berikutnya" class="w-full max-sm:mt-4 md:mt-8 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition">Berikutnya</button>
                     </div>
                 </div>
 
