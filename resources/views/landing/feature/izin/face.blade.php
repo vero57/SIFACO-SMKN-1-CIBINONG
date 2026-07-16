@@ -52,16 +52,16 @@
     <div class="container mx-auto px-6 py-8">
         @include("landing.partials.header")
         <div class="text-center mb-10">
-            <h1 class="text-2xl font-bold text-slate-100 mb-2">Verifikasi Wajah Pengajuan Izin</h1>
+            <h1 class="text-2xl font-bold text-[#0b1c30] mb-2">Verifikasi Wajah Pengajuan Izin</h1>
             <p class="text-slate-400">Pastikan wajah Anda dikenali sebelum mengirim pengajuan izin.</p>
         </div>
         <div class="face-container">
             <!-- Kontainer Kiri -->
             <div class="face-left flex flex-col items-center justify-center">
                 <div class="text-center px-4">
-                    <h2 class="text-lg font-semibold text-slate-100 mb-2">Arahkan wajah ke kamera</h2>
+                    <h2 class="text-lg font-semibold text-[#0b1c30] mb-2">Arahkan wajah ke kamera</h2>
                     <p class="text-slate-400">Pastikan wajah Anda terlihat jelas di kamera.</p>
-                    <div class="ekspresi-terdeteksi text-slate-400 mt-2"></div>
+                    <div class="ekspresi-terdeteksi text-[#0b1c30] mt-2"></div>
                 </div>
             </div>
             <!-- Kontainer Kanan -->

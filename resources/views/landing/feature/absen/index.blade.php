@@ -181,6 +181,8 @@
             </aside>
         </div>
     </main>
+
+    @include("landing.partials.nav")
 </section>
 
 <!-- Interactive Layer: Processing Modal -->
@@ -279,11 +281,11 @@
             // Callback from scripts.js
             window.absenEkspresiCheck = function (ekspresiTerdeteksi, confidence, faceLabel) {
                 if (absenBerhasil) return;
-                
+
                 // Show status on the right side
                 const statusTxt = document.querySelector('.status-text');
                 const ekspresiDet = document.querySelector('.ekspresi-terdeteksi');
-                
+
                 if (faceLabel === "unknown" || !faceLabel) {
                     if (statusTxt) statusTxt.textContent = "Wajah Tidak Dikenali";
                     if (ekspresiDet) {
@@ -326,14 +328,14 @@
                         const userLat = pos.coords.latitude;
                         const userLng = pos.coords.longitude;
                         const distance = getDistanceFromLatLonInMeters(userLat, userLng, schoolLat, schoolLng);
-                        
+
                         if (distance > radiusMeter) {
                             absenBerhasil = false;
                             if (processingModal) processingModal.style.display = 'none';
                             stopCameraAndBack("Anda berada di luar radius sekolah (" + distance.toFixed(1) + " meter). Absen tidak bisa dilakukan.");
                             return;
                         }
-                        
+
                         // Proceed to submit
                         submitAbsen(userLat, userLng, faceLabel);
                     }, function (err) {
@@ -422,10 +424,10 @@
                         if (processingModal) {
                             processingModal.querySelector('.modal-title').textContent = 'Absen Berhasil!';
                             processingModal.querySelector('.modal-description').textContent = 'Terima kasih, kehadiran Anda telah tercatat.';
-                            
+
                             const loaderEl = processingModal.querySelector('.animate-spin');
                             if (loaderEl) loaderEl.classList.add('hidden');
-                            
+
                             const faceIcon = processingModal.querySelector('.material-symbols-outlined');
                             if (faceIcon) faceIcon.classList.add('hidden');
 
