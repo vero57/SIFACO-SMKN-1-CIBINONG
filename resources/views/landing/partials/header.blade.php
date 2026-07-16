@@ -10,14 +10,14 @@
             </a>
         </div>
         <div class="hidden md:flex gap-lg items-center">
-            <a class="font-body-md text-body-md text-primary dark:text-primary-fixed font-bold border-b-2 border-primary dark:border-primary-fixed pb-1"
+            <a class="font-body-md text-body-md {{ request()->routeIs('landing.home') ? 'text-primary dark:text-primary-fixed font-bold border-b-2 border-primary dark:border-primary-fixed pb-1' : 'text-on-surface-variant dark:text-outline-variant hover:text-primary transition-colors'}}"
                 href="{{ route('landing.home') }}">Home</a>
-            <a class="font-body-md text-body-md text-on-surface-variant dark:text-outline-variant hover:text-primary transition-colors"
-                href="#action-cards">Absen</a>
-            <a class="font-body-md text-body-md text-on-surface-variant dark:text-outline-variant hover:text-primary transition-colors"
-                href="#action-cards">Izin</a>
-            <a class="font-body-md text-body-md text-on-surface-variant dark:text-outline-variant hover:text-primary transition-colors"
-                href="#history">Jurnal</a>
+            <a class="font-body-md text-body-md {{ request()->routeIs('feature.absen') ? 'text-primary dark:text-primary-fixed font-bold border-b-2 border-primary dark:border-primary-fixed pb-1' : 'text-on-surface-variant dark:text-outline-variant hover:text-primary transition-colors'}}"
+                href="{{ route('feature.absen') }}">Absen</a>
+            <a class="font-body-md text-body-md {{ request()->routeIs('feature.izin') ? 'text-primary dark:text-primary-fixed font-bold border-b-2 border-primary dark:border-primary-fixed pb-1' : 'text-on-surface-variant dark:text-outline-variant hover:text-primary transition-colors'}}"
+                href="{{ route('feature.izin') }}">Izin</a>
+            <a class="font-body-md text-body-md {{ request()->routeIs('feature.jurnal') ? 'text-primary dark:text-primary-fixed font-bold border-b-2 border-primary dark:border-primary-fixed pb-1' : 'text-on-surface-variant dark:text-outline-variant hover:text-primary transition-colors'}}"
+                href="{{ route('feature.jurnal') }}">Jurnal</a>
         </div>
         <div class="flex items-center gap-md">
             @if(auth()->check())
