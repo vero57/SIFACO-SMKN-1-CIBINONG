@@ -49,12 +49,12 @@
         background: rgba(255,255,255,0.02);
     }
     .drop-zone.dragover {
-        border-color: #10b981;
+        border-color: #3b82f6;
         background: rgba(16, 185, 129, 0.1);
     }
     .drop-zone.has-file {
-        border-color: #10b981;
-        background: rgba(16, 185, 129, 0.05);
+        border-color: #3b82f6;
+        background: rgba(59, 130, 246, 0.05);
     }
     .file-input {
         display: none;
