@@ -57,7 +57,7 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
             <!-- Left Side: Progress & Instructions (Desktop) -->
-            <aside class="lg:col-span-3 flex flex-col gap-md">
+            <aside class="lg:col-span-3 hidden lg:flex flex-col gap-md">
                 <!-- Progress Stepper -->
                 <div class="bg-surface-container-lowest p-md rounded-xl shadow-sm border border-outline-variant">
                     <h3 class="font-label-md text-label-md text-outline uppercase tracking-wider mb-md">Langkah Absensi</h3>
@@ -113,7 +113,7 @@
                 </div>
             </aside>
 
-            <!-- Center: Camera Viewfinder -->
+            <!-- Center: Camera Viewfinder Desktop -->
             <section class="lg:col-span-6 flex flex-col gap-md">
                 <div class="relative aspect-[4/3] w-full bg-inverse-surface rounded-xl overflow-hidden shadow-xl border-4 border-surface-container-lowest group flex items-center justify-center">
                     <!-- Loading camera stream -->
@@ -143,7 +143,7 @@
                         </div>
 
                         <!-- Bottom Instruction Overlay -->
-                        <div class="absolute bottom-md left-1/2 -translate-x-1/2 glass-overlay px-lg py-sm rounded-full shadow-lg z-20">
+                        <div class="absolute bottom-md left-1/2 -translate-x-1/2 glass-overlay opacity-75 max-sm:py-0 px-lg py-sm rounded-full shadow-lg z-20">
                             <p class="font-headline-md text-headline-md text-primary text-center whitespace-nowrap expression-overlay-label">Silakan Ikuti Instruksi</p>
                         </div>
                     </div>
@@ -157,6 +157,23 @@
                     </div>
                 </div>
             </section>
+
+            <!-- Left Side: Progress & Instructions (Mobile) -->
+            <aside class="lg:col-span-3 lg:hidden flex flex-col gap-md">
+                <!-- Guidance Card -->
+                <div class="bg-surface-container-lowest p-md rounded-xl shadow-sm border border-outline-variant">
+                    <div class="flex items-center gap-xs text-primary mb-base">
+                        <span class="material-symbols-outlined text-body-lg">info</span>
+                        <h4 class="font-label-md text-label-md">Instruksi</h4>
+                    </div>
+                    <ul class="space-y-sm text-body-sm text-on-surface-variant">
+                        <li class="flex gap-xs"><span class="text-primary">•</span> Lepaskan kacamata hitam/masker</li>
+                        <li class="flex gap-xs"><span class="text-primary">•</span> Pastikan pencahayaan ruangan cukup</li>
+                        <li class="flex gap-xs"><span class="text-primary">•</span> Hadapkan wajah tegak ke depan</li>
+                        <li class="flex gap-xs"><span class="text-primary">•</span> Tetap tenang saat pemindaian</li>
+                    </ul>
+                </div>
+            </aside>
 
             <!-- Right Side: Status & Logs -->
             <aside class="lg:col-span-3 flex flex-col gap-md">
