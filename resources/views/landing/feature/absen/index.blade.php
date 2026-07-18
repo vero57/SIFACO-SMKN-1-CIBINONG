@@ -8,19 +8,39 @@
             box-shadow: 0 0 15px #004ac6;
             animation: scan 3s infinite linear;
         }
+
         @keyframes scan {
-            0% { top: 0%; }
-            50% { top: 100%; }
-            100% { top: 0%; }
+            0% {
+                top: 0%;
+            }
+
+            50% {
+                top: 100%;
+            }
+
+            100% {
+                top: 0%;
+            }
         }
+
         .pulse-border {
             animation: pulse-border 2s infinite ease-in-out;
         }
+
         @keyframes pulse-border {
-            0% { border-color: rgba(0, 74, 198, 0.4); }
-            50% { border-color: rgba(0, 74, 198, 1); }
-            100% { border-color: rgba(0, 74, 198, 0.4); }
+            0% {
+                border-color: rgba(0, 74, 198, 0.4);
+            }
+
+            50% {
+                border-color: rgba(0, 74, 198, 1);
+            }
+
+            100% {
+                border-color: rgba(0, 74, 198, 0.4);
+            }
         }
+
         .glass-overlay {
             background: rgba(255, 255, 255, 0.7);
             backdrop-filter: blur(12px);
@@ -38,183 +58,209 @@
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
     </style>
 @endpush
 
 @section("content")
-<section class="min-h-screen text-on-surface bg-background">
-    @include("landing.partials.header")
+    <section class="min-h-screen text-on-surface bg-background">
+        @include("landing.partials.header")
 
-    <!-- Main Content Canvas -->
-    <main class="flex-grow w-full max-w-7xl mx-auto px-md md:px-margin-desktop py-md">
-        <div class="text-center mb-10">
-            <h1 class="text-2xl font-bold text-on-surface mb-2">Absen Wajah</h1>
-            <p class="text-on-surface-variant">Silakan lakukan absensi kehadiran dengan verifikasi wajah di bawah ini.</p>
-        </div>
+        <!-- Main Content Canvas -->
+        <main class="flex-grow w-full max-w-7xl mx-auto px-md md:px-margin-desktop py-md">
+            <div class="text-center mb-10">
+                <h1 class="text-2xl font-bold text-on-surface mb-2">Absen Wajah</h1>
+                <p class="text-on-surface-variant">Silakan lakukan absensi kehadiran dengan verifikasi wajah di bawah ini.
+                </p>
+            </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
-            <!-- Left Side: Progress & Instructions (Desktop) -->
-            <aside class="lg:col-span-3 hidden lg:flex flex-col gap-md">
-                <!-- Progress Stepper -->
-                <div class="bg-surface-container-lowest p-md rounded-xl shadow-sm border border-outline-variant">
-                    <h3 class="font-label-md text-label-md text-outline uppercase tracking-wider mb-md">Langkah Absensi</h3>
-                    <div class="flex flex-col gap-lg">
-                        <div class="flex items-center gap-sm">
-                            <div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold">1</div>
-                            <div>
-                                <p class="font-label-md text-label-md text-primary">Scan</p>
-                                <p class="text-xs text-on-surface-variant">Posisikan wajah Anda</p>
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+                <!-- Left Side: Progress & Instructions (Desktop) -->
+                <aside class="lg:col-span-3 flex flex-col gap-md">
+                    <!-- Progress Stepper -->
+                    <div class="bg-surface-container-lowest p-md rounded-xl shadow-sm border border-outline-variant">
+                        <h3 class="font-label-md text-label-md text-outline uppercase tracking-wider mb-md">Langkah Absensi
+                        </h3>
+                        <div class="flex flex-col gap-lg">
+                            <div class="flex items-center gap-sm">
+                                <div
+                                    class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold">
+                                    1</div>
+                                <div>
+                                    <p class="font-label-md text-label-md text-primary">Scan</p>
+                                    <p class="text-xs text-on-surface-variant">Posisikan wajah Anda</p>
+                                </div>
                             </div>
-                        </div>
-                        <div class="flex items-center gap-sm">
-                            <div id="step-verify-badge" class="w-8 h-8 rounded-full bg-surface-container text-on-surface-variant flex items-center justify-center font-bold">2</div>
-                            <div>
-                                <p id="step-verify-title" class="font-label-md text-label-md text-on-surface-variant">Verify</p>
-                                <p class="text-xs text-on-surface-variant opacity-60">Memproses data biometrik</p>
+                            <div class="flex items-center gap-sm">
+                                <div id="step-verify-badge"
+                                    class="w-8 h-8 rounded-full bg-surface-container text-on-surface-variant flex items-center justify-center font-bold">
+                                    2</div>
+                                <div>
+                                    <p id="step-verify-title" class="font-label-md text-label-md text-on-surface-variant">
+                                        Verify</p>
+                                    <p class="text-xs text-on-surface-variant opacity-60">Memproses data biometrik</p>
+                                </div>
                             </div>
-                        </div>
-                        <div class="flex items-center gap-sm">
-                            <div id="step-done-badge" class="w-8 h-8 rounded-full bg-surface-container text-on-surface-variant flex items-center justify-center font-bold">3</div>
-                            <div>
-                                <p id="step-done-title" class="font-label-md text-label-md text-on-surface-variant">Done</p>
-                                <p class="text-xs text-on-surface-variant opacity-60">Selesai terkirim</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Target Expression Card -->
-                <div class="bg-surface-container-lowest p-md rounded-xl shadow-sm border border-outline-variant flex flex-col items-center justify-center">
-                    <h3 class="font-label-md text-label-md text-outline uppercase tracking-wider mb-sm w-full text-left font-semibold">Tirukan Ekspresi</h3>
-                    <div class="w-32 aspect-square bg-surface-container-low rounded-xl flex items-center justify-center mb-sm overflow-hidden expression-box">
-                        <!-- Filled by JS -->
-                    </div>
-                    <div class="text-center">
-                        <h4 class="font-headline-md text-headline-md font-bold text-primary expression-label">-</h4>
-                        <p class="text-xs text-on-surface-variant expression-desc">Tirukan ekspresi wajah di atas</p>
-                    </div>
-                </div>
-
-                <!-- Guidance Card -->
-                <div class="bg-surface-container-lowest p-md rounded-xl shadow-sm border border-outline-variant">
-                    <div class="flex items-center gap-xs text-primary mb-base">
-                        <span class="material-symbols-outlined text-body-lg">info</span>
-                        <h4 class="font-label-md text-label-md">Instruksi</h4>
-                    </div>
-                    <ul class="space-y-sm text-body-sm text-on-surface-variant">
-                        <li class="flex gap-xs"><span class="text-primary">•</span> Lepaskan kacamata hitam/masker</li>
-                        <li class="flex gap-xs"><span class="text-primary">•</span> Pastikan pencahayaan ruangan cukup</li>
-                        <li class="flex gap-xs"><span class="text-primary">•</span> Hadapkan wajah tegak ke depan</li>
-                        <li class="flex gap-xs"><span class="text-primary">•</span> Tetap tenang saat pemindaian</li>
-                    </ul>
-                </div>
-            </aside>
-
-            <!-- Center: Camera Viewfinder Desktop -->
-            <section class="lg:col-span-6 flex flex-col gap-md">
-                <div class="relative aspect-[4/3] w-full bg-inverse-surface rounded-xl overflow-hidden shadow-xl border-4 border-surface-container-lowest group flex items-center justify-center">
-                    <!-- Loading camera stream -->
-                    <div id="cameraLoading" class="flex flex-col items-center justify-center w-full h-full text-white/70">
-                        <div class="loader mb-4"></div>
-                        <div class="font-label-md text-label-md">Memulai kamera...</div>
-                    </div>
-
-                    <!-- Camera & Canvas Container -->
-                    <div id="cameraContainer" style="display:none; width:100%; height:100%;" class="relative w-full h-full flex items-center justify-center">
-                        <video id="video" autoplay muted class="w-full h-full object-cover rounded-lg bg-neutral-900"></video>
-                        <canvas id="canvas" class="absolute inset-0 w-full h-full pointer-events-none"></canvas>
-
-                        <!-- Scanning Frame -->
-                        <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
-                            <div class="w-48 h-48 md:w-64 md:h-64 border-2 border-primary/40 rounded-[32px] relative pulse-border">
-                                <!-- Corner Accents -->
-                                <div class="absolute -top-1 -left-1 w-6 h-6 border-t-4 border-l-4 border-primary rounded-tl-xl"></div>
-                                <div class="absolute -top-1 -right-1 w-6 h-6 border-t-4 border-r-4 border-primary rounded-tr-xl"></div>
-                                <div class="absolute -bottom-1 -left-1 w-6 h-6 border-b-4 border-l-4 border-primary rounded-bl-xl"></div>
-                                <div class="absolute -bottom-1 -right-1 w-6 h-6 border-b-4 border-r-4 border-primary rounded-br-xl"></div>
-                                <!-- Scanning Line -->
-                                <div class="absolute inset-0 w-full overflow-hidden rounded-[30px]">
-                                    <div class="scanner-line relative w-full"></div>
+                            <div class="flex items-center gap-sm">
+                                <div id="step-done-badge"
+                                    class="w-8 h-8 rounded-full bg-surface-container text-on-surface-variant flex items-center justify-center font-bold">
+                                    3</div>
+                                <div>
+                                    <p id="step-done-title" class="font-label-md text-label-md text-on-surface-variant">Done
+                                    </p>
+                                    <p class="text-xs text-on-surface-variant opacity-60">Selesai terkirim</p>
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                        <!-- Bottom Instruction Overlay -->
-                        <div class="absolute bottom-md left-1/2 -translate-x-1/2 glass-overlay opacity-75 max-sm:py-0 px-lg py-sm rounded-full shadow-lg z-20">
-                            <p class="font-headline-md text-headline-md text-primary text-center whitespace-nowrap expression-overlay-label">Silakan Ikuti Instruksi</p>
+                    <!-- Target Expression Card -->
+                    <div
+                        class="bg-surface-container-lowest p-md rounded-xl shadow-sm border border-outline-variant flex flex-col items-center justify-center">
+                        <h3
+                            class="font-label-md text-label-md text-outline uppercase tracking-wider mb-sm w-full text-left font-semibold">
+                            Tirukan Ekspresi</h3>
+                        <div
+                            class="w-32 aspect-square bg-surface-container-low rounded-xl flex items-center justify-center mb-sm overflow-hidden expression-box">
+                            <!-- Filled by JS -->
+                        </div>
+                        <div class="text-center">
+                            <h4 class="font-headline-md text-headline-md font-bold text-primary expression-label">-</h4>
+                            <p class="text-xs text-on-surface-variant expression-desc">Tirukan ekspresi wajah di atas</p>
                         </div>
                     </div>
 
-                    <!-- Environment Info -->
-                    <div class="absolute top-md right-md flex flex-col gap-xs items-end z-10">
-                        <div class="bg-black/60 text-white px-base py-xs rounded-lg text-xs backdrop-blur-md flex items-center gap-xs">
-                            <span class="w-2 h-2 rounded-full bg-secondary-fixed animate-pulse"></span>
-                            LIVE FEED
+                    <!-- Guidance Card -->
+                    <div class="bg-surface-container-lowest p-md rounded-xl shadow-sm border border-outline-variant">
+                        <div class="flex items-center gap-xs text-primary mb-base">
+                            <span class="material-symbols-outlined text-body-lg">info</span>
+                            <h4 class="font-label-md text-label-md">Instruksi</h4>
                         </div>
+                        <ul class="space-y-sm text-body-sm text-on-surface-variant">
+                            <li class="flex gap-xs"><span class="text-primary">•</span> Lepaskan kacamata hitam/masker</li>
+                            <li class="flex gap-xs"><span class="text-primary">•</span> Pastikan pencahayaan ruangan cukup
+                            </li>
+                            <li class="flex gap-xs"><span class="text-primary">•</span> Hadapkan wajah tegak ke depan</li>
+                            <li class="flex gap-xs"><span class="text-primary">•</span> Tetap tenang saat pemindaian</li>
+                        </ul>
                     </div>
-                </div>
-            </section>
+                </aside>
 
-            <!-- Left Side: Progress & Instructions (Mobile) -->
-            <aside class="lg:col-span-3 lg:hidden flex flex-col gap-md">
-                <!-- Guidance Card -->
-                <div class="bg-surface-container-lowest p-md rounded-xl shadow-sm border border-outline-variant">
-                    <div class="flex items-center gap-xs text-primary mb-base">
-                        <span class="material-symbols-outlined text-body-lg">info</span>
-                        <h4 class="font-label-md text-label-md">Instruksi</h4>
-                    </div>
-                    <ul class="space-y-sm text-body-sm text-on-surface-variant">
-                        <li class="flex gap-xs"><span class="text-primary">•</span> Lepaskan kacamata hitam/masker</li>
-                        <li class="flex gap-xs"><span class="text-primary">•</span> Pastikan pencahayaan ruangan cukup</li>
-                        <li class="flex gap-xs"><span class="text-primary">•</span> Hadapkan wajah tegak ke depan</li>
-                        <li class="flex gap-xs"><span class="text-primary">•</span> Tetap tenang saat pemindaian</li>
-                    </ul>
-                </div>
-            </aside>
+                <!-- Center: Camera Viewfinder -->
+                <section class="lg:col-span-6 flex flex-col gap-md">
+                    <div
+                        class="relative aspect-[4/3] w-full bg-inverse-surface rounded-xl overflow-hidden shadow-xl border-4 border-surface-container-lowest group flex items-center justify-center">
+                        <!-- Loading camera stream -->
+                        <div id="cameraLoading"
+                            class="flex flex-col items-center justify-center w-full h-full text-white/70">
+                            <div class="loader mb-4"></div>
+                            <div class="font-label-md text-label-md">Memulai kamera...</div>
+                        </div>
 
-            <!-- Right Side: Status & Logs -->
-            <aside class="lg:col-span-3 flex flex-col gap-md">
-                <div class="bg-surface-container-lowest p-md rounded-xl shadow-sm border border-outline-variant h-full">
-                    <h3 class="font-label-md text-label-md text-outline uppercase tracking-wider mb-md">Status Kehadiran</h3>
-                    <div class="space-y-md">
-                        <!-- User Identity -->
-                        <div class="flex flex-col items-center p-md bg-surface-container-low rounded-xl border border-primary/10">
-                            <div class="w-20 h-20 rounded-full bg-outline-variant mb-sm overflow-hidden border-2 border-surface-container-lowest flex items-center justify-center">
-                                <span class="material-symbols-outlined text-outline text-4xl">account_circle</span>
+                        <!-- Camera & Canvas Container -->
+                        <div id="cameraContainer" style="display:none; width:100%; height:100%;"
+                            class="relative w-full h-full flex items-center justify-center">
+                            <video id="video" autoplay muted
+                                class="w-full h-full object-cover rounded-lg bg-neutral-900"></video>
+                            <canvas id="canvas" class="absolute inset-0 w-full h-full pointer-events-none"></canvas>
+
+                            <!-- Scanning Frame -->
+                            <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                <div
+                                    class="w-48 h-48 md:w-64 md:h-64 border-2 border-primary/40 rounded-[32px] relative pulse-border">
+                                    <!-- Corner Accents -->
+                                    <div
+                                        class="absolute -top-1 -left-1 w-6 h-6 border-t-4 border-l-4 border-primary rounded-tl-xl">
+                                    </div>
+                                    <div
+                                        class="absolute -top-1 -right-1 w-6 h-6 border-t-4 border-r-4 border-primary rounded-tr-xl">
+                                    </div>
+                                    <div
+                                        class="absolute -bottom-1 -left-1 w-6 h-6 border-b-4 border-l-4 border-primary rounded-bl-xl">
+                                    </div>
+                                    <div
+                                        class="absolute -bottom-1 -right-1 w-6 h-6 border-b-4 border-r-4 border-primary rounded-br-xl">
+                                    </div>
+                                    <!-- Scanning Line -->
+                                    <div class="absolute inset-0 w-full overflow-hidden rounded-[30px]">
+                                        <div class="scanner-line relative w-full"></div>
+                                    </div>
+                                </div>
                             </div>
-                            <p class="font-label-md text-label-md text-primary status-text">Mendeteksi Wajah...</p>
+
+                            <!-- Bottom Instruction Overlay -->
+                            <div
+                                class="absolute bottom-md left-1/2 -translate-x-1/2 glass-overlay px-lg py-sm rounded-full shadow-lg z-20">
+                                <p
+                                    class="font-headline-md text-headline-md text-primary text-center whitespace-nowrap expression-overlay-label">
+                                    Silakan Ikuti Instruksi</p>
+                            </div>
                         </div>
-                        <div class="pt-base border-t border-outline-variant">
-                            <h4 class="font-label-sm text-label-sm text-outline-variant mb-sm">Log Terdeteksi</h4>
-                            <div class="ekspresi-terdeteksi text-body-sm text-on-surface-variant font-medium p-sm bg-surface-container-low rounded-lg">
-                                Menunggu deteksi wajah...
+
+                        <!-- Environment Info -->
+                        <div class="absolute top-md right-md flex flex-col gap-xs items-end z-10">
+                            <div
+                                class="bg-black/60 text-white px-base py-xs rounded-lg text-xs backdrop-blur-md flex items-center gap-xs">
+                                <span class="w-2 h-2 rounded-full bg-secondary-fixed animate-pulse"></span>
+                                LIVE FEED
                             </div>
                         </div>
                     </div>
+                </section>
+
+                <!-- Right Side: Status & Logs -->
+                <aside class="lg:col-span-3 flex flex-col gap-md">
+                    <div class="bg-surface-container-lowest p-md rounded-xl shadow-sm border border-outline-variant h-full">
+                        <h3 class="font-label-md text-label-md text-outline uppercase tracking-wider mb-md">Status Kehadiran
+                        </h3>
+                        <div class="space-y-md">
+                            <!-- User Identity -->
+                            <div
+                                class="flex flex-col items-center p-md bg-surface-container-low rounded-xl border border-primary/10">
+                                <div
+                                    class="w-20 h-20 rounded-full bg-outline-variant mb-sm overflow-hidden border-2 border-surface-container-lowest flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-outline text-4xl">account_circle</span>
+                                </div>
+                                <p class="font-label-md text-label-md text-primary status-text">Mendeteksi Wajah...</p>
+                            </div>
+                            <div class="pt-base border-t border-outline-variant">
+                                <h4 class="font-label-sm text-label-sm text-outline-variant mb-sm">Log Terdeteksi</h4>
+                                <div
+                                    class="ekspresi-terdeteksi text-body-sm text-on-surface-variant font-medium p-sm bg-surface-container-low rounded-lg">
+                                    Menunggu deteksi wajah...
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </main>
+    </section>
+
+    <!-- Interactive Layer: Processing Modal -->
+    <div class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100] hidden items-center justify-center" id="processingModal">
+        <div
+            class="bg-surface rounded-2xl p-xl max-w-sm w-full mx-md text-center shadow-2xl flex flex-col items-center gap-md">
+            <div class="relative flex items-center justify-center">
+                <div class="w-16 h-16 border-4 border-surface-container-high border-t-primary rounded-full animate-spin">
                 </div>
-            </aside>
-        </div>
-    </main>
-
-    @include("landing.partials.nav")
-</section>
-
-<!-- Interactive Layer: Processing Modal -->
-<div class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100] hidden items-center justify-center" id="processingModal">
-    <div class="bg-surface rounded-2xl p-xl max-w-sm w-full mx-md text-center shadow-2xl flex flex-col items-center gap-md">
-        <div class="relative flex items-center justify-center">
-            <div class="w-16 h-16 border-4 border-surface-container-high border-t-primary rounded-full animate-spin"></div>
-            <span class="material-symbols-outlined absolute inset-0 flex items-center justify-center text-primary text-3xl">face</span>
-        </div>
-        <div>
-            <h2 class="font-headline-md text-headline-md text-on-surface modal-title">Memverifikasi Wajah</h2>
-            <p class="text-on-surface-variant mt-xs modal-description">Mohon tunggu sebentar, sistem sedang memvalidasi data Anda.</p>
+                <span
+                    class="material-symbols-outlined absolute inset-0 flex items-center justify-center text-primary text-3xl">face</span>
+            </div>
+            <div>
+                <h2 class="font-headline-md text-headline-md text-on-surface modal-title">Memverifikasi Wajah</h2>
+                <p class="text-on-surface-variant mt-xs modal-description">Mohon tunggu sebentar, sistem sedang memvalidasi
+                    data Anda.</p>
+            </div>
         </div>
     </div>
-</div>
 @endsection
 
 @push('script')
@@ -421,63 +467,63 @@
                         face_label: faceLabel
                     })
                 })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        // Mark Step 3 as completed
-                        const stepDoneBadge = document.getElementById('step-done-badge');
-                        const stepDoneTitle = document.getElementById('step-done-title');
-                        if (stepDoneBadge) {
-                            stepDoneBadge.classList.remove('bg-surface-container', 'text-on-surface-variant');
-                            stepDoneBadge.classList.add('bg-primary', 'text-on-primary');
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Mark Step 3 as completed
+                            const stepDoneBadge = document.getElementById('step-done-badge');
+                            const stepDoneTitle = document.getElementById('step-done-title');
+                            if (stepDoneBadge) {
+                                stepDoneBadge.classList.remove('bg-surface-container', 'text-on-surface-variant');
+                                stepDoneBadge.classList.add('bg-primary', 'text-on-primary');
+                            }
+                            if (stepDoneTitle) {
+                                stepDoneTitle.classList.remove('text-on-surface-variant');
+                                stepDoneTitle.classList.add('text-primary');
+                            }
+
+                            // Success view in modal
+                            const processingModal = document.getElementById('processingModal');
+                            if (processingModal) {
+                                processingModal.querySelector('.modal-title').textContent = 'Absen Berhasil!';
+                                processingModal.querySelector('.modal-description').textContent = 'Terima kasih, kehadiran Anda telah tercatat.';
+
+                                const loaderEl = processingModal.querySelector('.animate-spin');
+                                if (loaderEl) loaderEl.classList.add('hidden');
+
+                                const faceIcon = processingModal.querySelector('.material-symbols-outlined');
+                                if (faceIcon) faceIcon.classList.add('hidden');
+
+                                const successIcon = document.createElement('div');
+                                successIcon.className = "success-icon-wrapper";
+                                successIcon.innerHTML = `<div class="w-16 h-16 bg-secondary-container text-on-secondary-container rounded-full flex items-center justify-center"><span class="material-symbols-outlined text-[40px]">check_circle</span></div>`;
+                                processingModal.querySelector('.relative').appendChild(successIcon);
+                            }
+
+                            setTimeout(() => {
+                                window.location.href = "/";
+                            }, 2000);
+                        } else {
+                            const processingModal = document.getElementById('processingModal');
+                            if (processingModal) processingModal.style.display = 'none';
+
+                            const ekspresiDet = document.querySelector('.ekspresi-terdeteksi');
+                            if (ekspresiDet) {
+                                ekspresiDet.innerHTML = "<span class='text-red-500 font-semibold'>Gagal absen: " + (data.message || '') + "</span>";
+                            }
+                            absenBerhasil = false;
                         }
-                        if (stepDoneTitle) {
-                            stepDoneTitle.classList.remove('text-on-surface-variant');
-                            stepDoneTitle.classList.add('text-primary');
-                        }
-
-                        // Success view in modal
-                        const processingModal = document.getElementById('processingModal');
-                        if (processingModal) {
-                            processingModal.querySelector('.modal-title').textContent = 'Absen Berhasil!';
-                            processingModal.querySelector('.modal-description').textContent = 'Terima kasih, kehadiran Anda telah tercatat.';
-
-                            const loaderEl = processingModal.querySelector('.animate-spin');
-                            if (loaderEl) loaderEl.classList.add('hidden');
-
-                            const faceIcon = processingModal.querySelector('.material-symbols-outlined');
-                            if (faceIcon) faceIcon.classList.add('hidden');
-
-                            const successIcon = document.createElement('div');
-                            successIcon.className = "success-icon-wrapper";
-                            successIcon.innerHTML = `<div class="w-16 h-16 bg-secondary-container text-on-secondary-container rounded-full flex items-center justify-center"><span class="material-symbols-outlined text-[40px]">check_circle</span></div>`;
-                            processingModal.querySelector('.relative').appendChild(successIcon);
-                        }
-
-                        setTimeout(() => {
-                            window.location.href = "/";
-                        }, 2000);
-                    } else {
+                    })
+                    .catch(() => {
                         const processingModal = document.getElementById('processingModal');
                         if (processingModal) processingModal.style.display = 'none';
 
                         const ekspresiDet = document.querySelector('.ekspresi-terdeteksi');
                         if (ekspresiDet) {
-                            ekspresiDet.innerHTML = "<span class='text-red-500 font-semibold'>Gagal absen: " + (data.message || '') + "</span>";
+                            ekspresiDet.innerHTML = "<span class='text-red-500 font-semibold'>Gagal mengirim absen.</span>";
                         }
                         absenBerhasil = false;
-                    }
-                })
-                .catch(() => {
-                    const processingModal = document.getElementById('processingModal');
-                    if (processingModal) processingModal.style.display = 'none';
-
-                    const ekspresiDet = document.querySelector('.ekspresi-terdeteksi');
-                    if (ekspresiDet) {
-                        ekspresiDet.innerHTML = "<span class='text-red-500 font-semibold'>Gagal mengirim absen.</span>";
-                    }
-                    absenBerhasil = false;
-                });
+                    });
             }
         });
     </script>
