@@ -48,8 +48,7 @@ async function run() {
         faceapi.nets.ssdMobilenetv1.loadFromUri('/faceapi/models'),
         faceapi.nets.faceLandmark68Net.loadFromUri('/faceapi/models'),
         faceapi.nets.faceRecognitionNet.loadFromUri('/faceapi/models'),
-        faceapi.nets.ageGenderNet.loadFromUri('/faceapi/models'),
-        faceapi.nets.faceExpressionNet.loadFromUri('/faceapi/models'), // ⭐ NEW
+        faceapi.nets.faceExpressionNet.loadFromUri('/faceapi/models'),
     ]);
 
     console.log("Models loaded!");
@@ -104,7 +103,6 @@ async function run() {
             const detections = await faceapi.detectAllFaces(video)
                 .withFaceLandmarks()
                 .withFaceDescriptors()
-                .withAgeAndGender()
                 .withFaceExpressions();
 
             const resized = faceapi.resizeResults(detections, {

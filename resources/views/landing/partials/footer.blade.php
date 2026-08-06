@@ -5,9 +5,9 @@
         <div class="flex items-center gap-xs">
             <span class="material-symbols-outlined text-primary"
                 style="font-variation-settings: 'FILL' 1;">shape_recognition</span>
-            <span class="font-label-md text-label-md font-bold text-on-surface">ManaMukanya</span>
+            <span class="font-label-md text-label-md font-bold text-on-surface">SIFARECO</span>
         </div>
-        <p class="font-label-sm text-label-sm text-on-surface-variant">&copy; {{ date('Y') }} ManaMukanya. All rights
+        <p class="font-label-sm text-label-sm text-on-surface-variant">&copy; {{ date('Y') }} SIFARECO. All rights
             reserved.</p>
     </div>
     <div class="flex gap-lg">
@@ -23,8 +23,8 @@
 <!-- Mobile Footer -->
 <footer
     class="flex md:hidden w-full py-lg px-md mt-auto flex-col items-center gap-base bg-surface-container-lowest border-t border-outline-variant dark:border-outline mb-20">
-    <span class="font-label-md text-label-md font-bold text-on-surface">ManaMukanya</span>
-    <p class="font-label-sm text-label-sm text-on-surface-variant">&copy; {{ date('Y') }} ManaMukanya. All rights
+    <span class="font-label-md text-label-md font-bold text-on-surface">SIFARECO</span>
+    <p class="font-label-sm text-label-sm text-on-surface-variant">&copy; {{ date('Y') }} SIFARECO. All rights
         reserved.</p>
     <div class="flex gap-md">
         <a class="text-on-surface-variant dark:text-outline-variant hover:text-primary transition-colors font-label-sm text-label-sm"

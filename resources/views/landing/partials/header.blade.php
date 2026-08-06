@@ -6,7 +6,7 @@
                 <span class="material-symbols-outlined text-primary text-3xl"
                     style="font-variation-settings: 'FILL' 1;">shape_recognition</span>
                 <span
-                    class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed">ManaMukanya</span>
+                    class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed">SIFARECO</span>
             </a>
         </div>
         <div class="hidden md:flex gap-lg items-center">
@@ -26,11 +26,17 @@
                         <div class="text-right hidden sm:block">
                             <p class="font-label-md text-label-md font-bold text-on-surface">{{ auth()->user()->name }}</p>
                             <p class="font-label-sm text-label-sm text-on-surface-variant">
-                                {{ auth()->user()->classes()->first()->name ?? 'Siswa' }}</p>
+                                {{ auth()->user()->classes()->first()->name ?? 'Siswa' }}
+                            </p>
                         </div>
                         <div
                             class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary-fixed flex items-center justify-center bg-primary-fixed">
-                            <span class="material-symbols-outlined text-primary text-2xl">account_circle</span>
+                            @if(auth()->user()->studentDetail && auth()->user()->studentDetail->photo)
+                                <img src="{{ asset('storage/' . auth()->user()->studentDetail->photo) }}" alt="Profile Photo"
+                                    class="w-full h-full object-cover">
+                            @else
+                                <span class="material-symbols-outlined text-primary text-2xl">account_circle</span>
+                            @endif
                         </div>
                     </button>
                     <!-- Dropdown menu -->
@@ -63,7 +69,7 @@
                 <span class="material-symbols-outlined text-primary text-3xl"
                     style="font-variation-settings: 'FILL' 1;">shape_recognition</span>
                 <span
-                    class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed">ManaMukanya</span>
+                    class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed">SIFARECO</span>
             </a>
         </div>
         <div class="flex items-center gap-base">

@@ -1,6 +1,6 @@
 @extends("landing.layout.app",
     [
-        "title" => "ManaMukanya",
+        "title" => "SIFARECO",
     ]
 )
 
@@ -47,7 +47,7 @@
               @if ($userName)
                   Selamat datang, {{ $userName }}
               @else
-                  Selamat datang di ManaMukanya
+                  Selamat datang di SIFARECO
               @endif
             </span>
           </div>
@@ -55,7 +55,7 @@
             Kehadiran Lebih <span class="text-primary">Cerdas</span> &amp; Terpercaya.
           </h1>
           <p class="font-body-lg text-body-lg text-on-surface-variant max-w-xl">
-            ManaMukanya menyederhanakan kehadiran sekolah dengan pengenalan wajah tingkat lanjut. Cepat, akurat, dan terintegrasi dengan jurnal harian Anda.
+            SIFARECO menyederhanakan kehadiran sekolah dengan pengenalan wajah tingkat lanjut. Cepat, akurat, dan terintegrasi dengan jurnal harian Anda.
           </p>
           <div class="flex flex-wrap gap-base pt-base">
             @if(auth()->check())
@@ -78,7 +78,7 @@
           <div class="relative bg-white p-base rounded-[32px] shadow-2xl overflow-hidden aspect-[4/3] group">
             <img class="w-full h-full object-cover rounded-[24px]"
               alt="Face recognition interface mockup"
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuDlZmcYEndc0lv5YnQ6BrmL1btvyEWSg8XClLKLqWcBar9LLoTHVXWB66-1QQ8mPuaOvKSc260NCiORtP0eyMDsNJKH47G31qmgKMDwYxbf3dYRcidMGdoWOrRF_YZ4yAqzkOCA7tQASiHxxySsGOSbDp-i_NXeUMzLz_DCVgzqx_XUGsgt_jof7Z1VkzV5buG9g2O2-1sC433Hh5IPDnTWUPqsIYpLE8EL00PLB0H6FwfiBdniDzbANpjfr8n7YUWzj25uVSDg38w" />
+              src="{{asset('assets/images/landing/logo_sija.png')}}" />
             <div class="absolute inset-0 bg-gradient-to-t from-primary/40 to-transparent flex flex-col justify-end p-lg">
               <div class="glass-card p-md rounded-2xl flex items-center gap-md">
                 <div class="bg-secondary text-on-secondary w-12 h-12 rounded-full flex items-center justify-center">
