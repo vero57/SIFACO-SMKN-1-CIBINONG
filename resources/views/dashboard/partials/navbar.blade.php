@@ -1,7 +1,6 @@
 <header class="bg-slate-800/30 backdrop-blur-sm border-b border-slate-700 px-2 sm:px-4 md:px-6 py-2 md:py-4 shrink-0">
     <div class="flex items-center justify-between gap-2 md:gap-4">
         <div class="flex items-center gap-2 md:gap-3 min-w-0">
-            {{-- Sidebar toggle button (mobile only) --}}
             <button class="md:hidden text-white focus:outline-none flex-shrink-0" onclick="toggleSidebar(true)">
                 <i class="fas fa-bars text-lg md:text-xl"></i>
             </button>

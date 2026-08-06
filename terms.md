@@ -1,0 +1,11 @@
+- Jam jadwal akan dibuat dinamis dengan json
+- Radius jangan ditaruh di kode
+- Buat tabel konfigurasi di database (untuk yang ini di skip dlu karena masih jadi diskusi)
+- Import berserakan url image untuk absen
+- Untuk absen jika sakit di tengah hari masuk
+- Kalau misal tidak absen (masuk dan keluar), maka akan tercatat alfa
+- Navigasinya harus jelas, (kasih keterangan) (ini juga masih dipertimbangkan oleh tim jadi boleh diskip dlu untuk sementara waktu)
+- Gunakan database indexing untuk efisiensi
+- Test menggunakan siswa banyak
+- Untuk foreign key dikasih relation indexing
+- refactor kode dan bersihkan, pindahkan kode agar lebih terstruktur dengan nama dan bestpractice yang benar dan jelas

@@ -1,65 +1,73 @@
-@extends("landing.layout.app", ["title" => "ManaMukanya"])
+@extends("landing.layout.app", ["title" => "SIFARECO"])
 
 @push("style")
-<style>
-    .izin-container {
-        display: flex;
-        gap: 2rem;
-        margin-top: 2rem;
-        margin-bottom: 2rem;
-    }
-    .izin {
-        width: 45%;
-        background-color: #FFFFFFCC;
-        border-radius: 1.5rem;
-        padding: 2em;
-        padding-top: 3rem;
-        border: 2px solid #e5e7eb;
-        backdrop-filter: blur(10px);
-    }
-    @media (max-width: 900px) {
+    <style>
         .izin-container {
-            flex-direction: column;
-            gap: 0rem;
-            margin-bottom: 0rem;
+            display: flex;
+            gap: 2rem;
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+        }
 
-        }
         .izin {
-            width: 100%;
-            background: none;
-            border: none;
-            padding: 0 1.5rem 2rem 1.5rem;
-            margin-bottom: 0rem;
+            width: 45%;
+            background-color: #FFFFFFCC;
+            border-radius: 1.5rem;
+            padding: 2em;
+            padding-top: 3rem;
+            border: 2px solid #e5e7eb;
+            backdrop-filter: blur(10px);
         }
-    }
-    .izin-form-input {
-        font-size: 0.95rem;
-        padding-top: 5px;
-        padding-bottom: 5px;
-        padding-left: 0.75rem;
-        padding-right: 0.75rem;
-    }
-    .drop-zone {
-        border: 2px dashed #64748b;
-        border-radius: 1rem;
-        padding: 2rem;
-        text-align: center;
-        cursor: pointer;
-        transition: border-color 0.3s;
-        background: rgba(255,255,255,0.02);
-    }
-    .drop-zone.dragover {
-        border-color: #3b82f6;
-        background: rgba(16, 185, 129, 0.1);
-    }
-    .drop-zone.has-file {
-        border-color: #3b82f6;
-        background: rgba(59, 130, 246, 0.05);
-    }
-    .file-input {
-        display: none;
-    }
-</style>
+
+        @media (max-width: 900px) {
+            .izin-container {
+                flex-direction: column;
+                gap: 0rem;
+                margin-bottom: 0rem;
+
+            }
+
+            .izin {
+                width: 100%;
+                background: none;
+                border: none;
+                padding: 0 1.5rem 2rem 1.5rem;
+                margin-bottom: 0rem;
+            }
+        }
+
+        .izin-form-input {
+            font-size: 0.95rem;
+            padding-top: 5px;
+            padding-bottom: 5px;
+            padding-left: 0.75rem;
+            padding-right: 0.75rem;
+        }
+
+        .drop-zone {
+            border: 2px dashed #64748b;
+            border-radius: 1rem;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.3s;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .drop-zone.dragover {
+            border-color: #3b82f6;
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .drop-zone.has-file {
+            border-color: #3b82f6;
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        .file-input {
+            display: none;
+        }
+    </style>
 @endpush
 
 @section("content")
@@ -105,68 +113,81 @@
         <form action="{{ route('feature.izin.store') }}" method="POST" enctype="multipart/form-data" class="space-y-5">
             <div class="izin-container lg:flex-col lg:items-center">
                     @csrf
-                <!-- Kontainer Atas -->
-                <div class="izin flex items-center justify-center">
-                    <div class="w-full max-sm:max-w-md max-w-xl space-y-4 md:space-y-6">
+                    <!-- Kontainer Atas -->
+                    <div class="izin flex items-center justify-center">
+                        <div class="w-full max-sm:max-w-md max-w-xl space-y-4 md:space-y-6">
 
-                    <div class="flex flex-col lg:flex-row gap-4">
-                        <div class="flex flex-col lg:flex-row lg:gap-2 w-full">
-                            <div class="lg:w-full">
-                                <label for="student_id" class="block text-[#0b1c30] mb-1">Nama Siswa</label>
-                                <input type="hidden" name="student_id" value="{{ auth()->user()->id }}">
-                                <input type="text" id="student_id_display" value="{{ auth()->user()->name }}" readonly class="izin-form-input w-full rounded-lg bg-[#eff4ff] max-sm:placeholder-shown:bg-white text-[#0b1c30] border-2 border-[#e5e7eb] focus:outline-none focus:ring-2 focus:ring-blue-600 cursor-not-allowed">
-                            </div>
-                        </div>
+                            <div class="flex flex-col lg:flex-row gap-4">
+                                <div class="flex flex-col lg:flex-row lg:gap-2 w-full">
+                                    <div class="lg:w-full">
+                                        <label for="student_id" class="block text-[#0b1c30] mb-1">Nama Siswa</label>
+                                        <input type="hidden" name="student_id" value="{{ auth()->user()->id }}">
+                                        <input type="text" id="student_id_display" value="{{ auth()->user()->name }}"
+                                            readonly
+                                            class="izin-form-input w-full rounded-lg bg-[#eff4ff] max-sm:placeholder-shown:bg-white text-[#0b1c30] border-2 border-[#e5e7eb] focus:outline-none focus:ring-2 focus:ring-blue-600 cursor-not-allowed">
+                                    </div>
+                                </div>
 
-                        <div class="flex flex-col lg:flex-row lg:gap-2 w-full">
-                            <div class="lg:w-full">
-                                <label for="parent_name" class="block text-[#0b1c30] mb-1">Nama Orang Tua / Wali</label>
-                                <input type="text" id="parent_name" name="parent_name" required class="izin-form-input w-full rounded-lg bg-[#eff4ff] max-sm:placeholder-shown:bg-white text-[#0b1c30] border-2 border-[#e5e7eb] focus:outline-none focus:ring-2 focus:ring-blue-600" placeholder="Masukkan nama wali">
-                            </div>
-                        </div>
-                    </div>
-
-
-                        <div>
-                            <label for="type" class="block text-[#0b1c30] mb-1">Tipe Izin</label>
-                            <select id="type" name="type" required class="izin-form-input w-full rounded-lg bg-[#eff4ff] max-sm:placeholder-shown:bg-white text-[#0b1c30] py-2.5 text-base border-2 border-[#e5e7eb] focus:outline-none focus:ring-2 focus:ring-blue-600">
-                                <option value="">Pilih Alasan Izin</option>
-                                <option value="sakit">Sakit</option>
-                                <option value="izin">Izin</option>
-                                <option value="dispen">Dispen</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label for="description" class="block text-[#0b1c30] mb-1">Deskripsi / Alasan Detail</label>
-                            <textarea id="description" name="description" rows="3" required class="w-full rounded-lg bg-[#eff4ff] max-sm:placeholder-shown:bg-white text-[#0b1c30] text-base border-2 border-[#e5e7eb] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600" placeholder="Berikan Penjelasan singkat mengenai izin"></textarea>
-                        </div>
-                        <div class="flex flex-col items-center justify-center md:pb-4">
-                            <div class="flex flex-col items-start w-full">
-                                <label for="drop-zone" class="block text-[#0b1c30] mb-1">Upload Surat Izin</label>
-                            </div>
-                            <div id="drop-zone" class="drop-zone w-full">
-                                <svg class="w-20 h-20 text-slate-300 mb-6 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                </svg>
-                                <div class="text-center px-4">
-                                    <h2 class="text-lg font-semibold text-[#0b1c30] mb-2">Upload File</h2>
-                                    <p class="text-slate-400" id="drop-text">Klik atau seret file ke sini</p>
-                                    <p class="text-xs text-slate-400 mt-1">Max file 10mb. Format: jpg, png, jpeg, pdf</p>
+                                <div class="flex flex-col lg:flex-row lg:gap-2 w-full">
+                                    <div class="lg:w-full">
+                                        <label for="parent_name" class="block text-[#0b1c30] mb-1">Nama Orang Tua /
+                                            Wali</label>
+                                        <input type="text" id="parent_name" name="parent_name" required
+                                            class="izin-form-input w-full rounded-lg bg-[#eff4ff] max-sm:placeholder-shown:bg-white text-[#0b1c30] border-2 border-[#e5e7eb] focus:outline-none focus:ring-2 focus:ring-blue-600"
+                                            placeholder="Masukkan nama wali">
+                                    </div>
                                 </div>
                             </div>
-                            <input type="file" id="file-input" name="file[]" class="file-input" accept="image/*,application/pdf" required multiple>
+
+
+                            <div>
+                                <label for="type" class="block text-[#0b1c30] mb-1">Tipe Izin</label>
+                                <select id="type" name="type" required
+                                    class="izin-form-input w-full rounded-lg bg-[#eff4ff] max-sm:placeholder-shown:bg-white text-[#0b1c30] py-2.5 text-base border-2 border-[#e5e7eb] focus:outline-none focus:ring-2 focus:ring-blue-600">
+                                    <option value="">Pilih Alasan Izin</option>
+                                    <option value="sakit">Sakit</option>
+                                    <option value="izin">Izin</option>
+                                    <option value="dispen">Dispen</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="description" class="block text-[#0b1c30] mb-1">Deskripsi / Alasan Detail</label>
+                                <textarea id="description" name="description" rows="3" required
+                                    class="w-full rounded-lg bg-[#eff4ff] max-sm:placeholder-shown:bg-white text-[#0b1c30] text-base border-2 border-[#e5e7eb] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                                    placeholder="Berikan Penjelasan singkat mengenai izin"></textarea>
+                            </div>
+                            <div class="flex flex-col items-center justify-center md:pb-4">
+                                <div class="flex flex-col items-start w-full">
+                                    <label for="drop-zone" class="block text-[#0b1c30] mb-1">Upload Surat Izin</label>
+                                </div>
+                                <div id="drop-zone" class="drop-zone w-full">
+                                    <svg class="w-20 h-20 text-slate-300 mb-6 mx-auto" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                        </path>
+                                    </svg>
+                                    <div class="text-center px-4">
+                                        <h2 class="text-lg font-semibold text-[#0b1c30] mb-2">Upload File</h2>
+                                        <p class="text-slate-400" id="drop-text">Klik atau seret file ke sini</p>
+                                        <p class="text-xs text-slate-400 mt-1">Max file 10mb. Format: jpg, png, jpeg, pdf
+                                        </p>
+                                    </div>
+                                </div>
+                                <input type="file" id="file-input" name="file[]" class="file-input"
+                                    accept="image/*,application/pdf" required multiple>
+                            </div>
+                            <button type="button" id="btn-berikutnya"
+                                class="w-full max-sm:mt-4 md:mt-8 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition">Berikutnya</button>
                         </div>
-                        <button type="button" id="btn-berikutnya" class="w-full max-sm:mt-4 md:mt-8 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition">Berikutnya</button>
                     </div>
+
                 </div>
+            </form>
+        </div>
 
-            </div>
-        </form>
-    </div>
-
-    @include("landing.partials.nav")
-</section>
+        @include("landing.partials.nav")
+    </section>
 
 @push("script")
 <script>
@@ -227,42 +248,42 @@ document.addEventListener('DOMContentLoaded', function() {
         customAlertClose.addEventListener('click', closeCustomAlert);
     }
 
-    // Klik untuk pilih file
-    dropZone.addEventListener('click', () => fileInput.click());
+                // Klik untuk pilih file
+                dropZone.addEventListener('click', () => fileInput.click());
 
-    // Drag over
-    dropZone.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        dropZone.classList.add('dragover');
-    });
+                // Drag over
+                dropZone.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    dropZone.classList.add('dragover');
+                });
 
-    // Drag leave
-    dropZone.addEventListener('dragleave', () => {
-        dropZone.classList.remove('dragover');
-    });
+                // Drag leave
+                dropZone.addEventListener('dragleave', () => {
+                    dropZone.classList.remove('dragover');
+                });
 
-    // Drop
-    dropZone.addEventListener('drop', (e) => {
-        e.preventDefault();
-        dropZone.classList.remove('dragover');
-        const files = e.dataTransfer.files;
-        if (files.length > 0) {
-            fileInput.files = files;
-            dropZone.classList.add('has-file');
-            dropText.textContent = `${files.length} file(s) dipilih`;
-        }
-    });
+                // Drop
+                dropZone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    dropZone.classList.remove('dragover');
+                    const files = e.dataTransfer.files;
+                    if (files.length > 0) {
+                        fileInput.files = files;
+                        dropZone.classList.add('has-file');
+                        dropText.textContent = `${files.length} file(s) dipilih`;
+                    }
+                });
 
-    // File input change
-    fileInput.addEventListener('change', () => {
-        if (fileInput.files.length > 0) {
-            dropZone.classList.add('has-file');
-            dropText.textContent = `${fileInput.files.length} file(s) dipilih`;
-        } else {
-            dropZone.classList.remove('has-file');
-            dropText.textContent = 'Seret dan jatuhkan file di sini atau klik untuk memilih';
-        }
-    });
+                // File input change
+                fileInput.addEventListener('change', () => {
+                    if (fileInput.files.length > 0) {
+                        dropZone.classList.add('has-file');
+                        dropText.textContent = `${fileInput.files.length} file(s) dipilih`;
+                    } else {
+                        dropZone.classList.remove('has-file');
+                        dropText.textContent = 'Seret dan jatuhkan file di sini atau klik untuk memilih';
+                    }
+                });
 
     // Tombol Berikutnya: simpan data ke sessionStorage dan redirect
     btnBerikutnya.addEventListener('click', function(e) {
