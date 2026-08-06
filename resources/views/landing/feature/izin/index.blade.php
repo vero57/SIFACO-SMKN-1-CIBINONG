@@ -66,23 +66,35 @@
 <section class="min-h-screen text-slate-200">
     <div class="">
         @include("landing.partials.header")
+
+        <div id="customAlertModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40 backdrop-blur-sm px-4 py-6">
+            <div class="w-full max-w-lg rounded-3xl bg-white p-6 shadow-2xl shadow-black/20 text-slate-900">
+                <div class="flex flex-col items-center gap-4 text-center">
+                    <div id="customAlertIcon" class="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
+                        <span class="material-symbols-outlined text-4xl">check_circle</span>
+                    </div>
+                    <div>
+                        <h2 id="customAlertTitle" class="text-xl font-semibold"></h2>
+                        <p id="customAlertMessage" class="mt-2 text-slate-600"></p>
+                    </div>
+                    <button id="customAlertClose" type="button" class="mt-4 inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white transition hover:bg-primary-container">
+                        Tutup
+                    </button>
+                </div>
+            </div>
+        </div>
+
         @if(session('success'))
             <script>
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Berhasil!',
-                    text: '{{ session("success") }}',
-                    timer: 3000,
-                    showConfirmButton: false
+                document.addEventListener('DOMContentLoaded', function() {
+                    openCustomAlert('success', 'Berhasil!', @json(session('success')), 3000);
                 });
             </script>
         @endif
         @if($errors->any())
             <script>
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error!',
-                    html: '<ul>@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>',
+                document.addEventListener('DOMContentLoaded', function() {
+                    openCustomAlert('error', 'Error!', @json(implode('<br/>', $errors->all())), 0);
                 });
             </script>
         @endif
@@ -164,6 +176,56 @@ document.addEventListener('DOMContentLoaded', function() {
     const dropText = document.getElementById('drop-text');
     const btnBerikutnya = document.getElementById('btn-berikutnya');
     const form = document.querySelector('form');
+    const customAlertModal = document.getElementById('customAlertModal');
+    const customAlertIcon = document.getElementById('customAlertIcon');
+    const customAlertTitle = document.getElementById('customAlertTitle');
+    const customAlertMessage = document.getElementById('customAlertMessage');
+    const customAlertClose = document.getElementById('customAlertClose');
+    let customAlertTimeout = null;
+
+    function openCustomAlert(type, title, message, duration = 0) {
+        if (!customAlertModal) return;
+
+        if (customAlertTimeout) {
+            clearTimeout(customAlertTimeout);
+            customAlertTimeout = null;
+        }
+
+        customAlertTitle.textContent = title;
+        customAlertMessage.innerHTML = message;
+
+        if (type === 'success') {
+            customAlertIcon.className = 'flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-emerald-600';
+            customAlertIcon.innerHTML = '<span class="material-symbols-outlined text-4xl">check_circle</span>';
+        } else if (type === 'error') {
+            customAlertIcon.className = 'flex h-16 w-16 items-center justify-center rounded-full bg-rose-100 text-rose-600';
+            customAlertIcon.innerHTML = '<span class="material-symbols-outlined text-4xl">error</span>';
+        } else {
+            customAlertIcon.className = 'flex h-16 w-16 items-center justify-center rounded-full bg-slate-100 text-slate-700';
+            customAlertIcon.innerHTML = '<span class="material-symbols-outlined text-4xl">info</span>';
+        }
+
+        customAlertModal.classList.remove('hidden');
+        customAlertModal.classList.add('flex');
+
+        if (duration > 0) {
+            customAlertTimeout = setTimeout(closeCustomAlert, duration);
+        }
+    }
+
+    function closeCustomAlert() {
+        if (!customAlertModal) return;
+        customAlertModal.classList.add('hidden');
+        customAlertModal.classList.remove('flex');
+        if (customAlertTimeout) {
+            clearTimeout(customAlertTimeout);
+            customAlertTimeout = null;
+        }
+    }
+
+    if (customAlertClose) {
+        customAlertClose.addEventListener('click', closeCustomAlert);
+    }
 
     // Klik untuk pilih file
     dropZone.addEventListener('click', () => fileInput.click());
@@ -210,7 +272,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const type = document.getElementById('type').value;
         const description = document.getElementById('description').value.trim();
         if (!parentName || !type || !description || fileInput.files.length === 0) {
-            Swal.fire({ icon: 'error', title: 'Lengkapi Data!', text: 'Semua field dan file wajib diisi.' });
+            openCustomAlert('error', 'Lengkapi Data!', 'Semua field dan file wajib diisi.', 0);
             return;
         }
         // Simpan data ke sessionStorage

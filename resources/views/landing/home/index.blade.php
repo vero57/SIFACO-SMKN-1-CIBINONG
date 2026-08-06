@@ -7,24 +7,20 @@
 @section("content")
 <section class="min-h-screen text-on-surface bg-background antialiased pb-24">
   @include("landing.partials.header")
+  <div id="custom-alert-container" class="fixed inset-0 z-50 flex items-center justify-center hidden"></div>
 
   @if(session('success'))
       <script>
-          Swal.fire({
-              icon: 'success',
-              title: 'Berhasil!',
-              text: '{{ session("success") }}',
-              timer: 3000,
-              showConfirmButton: false
+          document.addEventListener('DOMContentLoaded', function() {
+              showCustomAlert('success', 'Berhasil!', @json(session('success')));
           });
       </script>
   @endif
   @if($errors->any())
       <script>
-          Swal.fire({
-              icon: 'error',
-              title: 'Error!',
-              html: '<ul>@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>',
+          document.addEventListener('DOMContentLoaded', function() {
+              const errors = @json($errors->all());
+              showCustomAlert('error', 'Error!', errors.join('<br/>'), 6000);
           });
       </script>
   @endif
@@ -491,6 +487,42 @@
 
 @push("script")
 <script>
+    function showCustomAlert(type, title, message, duration = 3000) {
+      const container = document.getElementById('custom-alert-container');
+      if (!container) return;
+
+      const typeClasses = type === 'success'
+          ? 'text-emerald-600 border-emerald-600'
+          : 'text-rose-600 border-rose-600';
+      const icon = type === 'success' ? 'check_circle' : 'error';
+      const alert = document.createElement('div');
+      alert.className = `mb-3 w-full max-w-sm h-40 rounded-3xl border px-4 py-3 shadow-3xl shadow-black/20 bg-white ${typeClasses}`;
+      alert.innerHTML = `
+          <div class="flex flex-row gap-3 items-center justify-center h-full">
+              <span class="material-symbols-outlined text-2xl">${icon}</span>
+              <div class="min-w-0 lg:gap-5">
+                  <p class="font-semibold lg:text-lg">${title}</p>
+                  <p class="text-sm leading-relaxed mt-1 lg:text-lg">${message}</p>
+              </div>
+          </div>
+      `;
+
+      container.appendChild(alert);
+      container.classList.remove('hidden');
+
+      setTimeout(() => {
+          alert.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+          alert.style.opacity = '0';
+          alert.style.transform = 'translateY(-10px)';
+          setTimeout(() => {
+              alert.remove();
+              if (!container.hasChildNodes()) {
+                  container.classList.add('hidden');
+              }
+          }, 300);
+      }, duration);
+    }
+
     // Clock & Live Date
     function updateClock() {
       const now = new Date();
@@ -609,25 +641,11 @@
                 }
 
                 // Notifikasi sukses
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Berhasil!',
-                    text: result.message || 'Check out berhasil',
-                    timer: 3000,
-                    showConfirmButton: false,
-                    toast: true,
-                    position: 'top-end',
-                });
+                showCustomAlert('success', 'Berhasil!', result.message || 'Check out berhasil');
 
             } else {
                 // Notifikasi error
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Gagal!',
-                    text: result.message || 'Terjadi kesalahan',
-                    confirmButtonText: 'OK',
-                    confirmButtonColor: '#3b82f6'
-                });
+                showCustomAlert('error', 'Gagal!', result.message || 'Terjadi kesalahan', 3000);
 
                 // Reset button
                 button.innerHTML = originalText;
@@ -637,13 +655,7 @@
         } catch (error) {
             console.error('Error:', error);
 
-            Swal.fire({
-                icon: 'error',
-                title: 'Koneksi Error!',
-                text: 'Tidak dapat terhubung ke server. Periksa koneksi internet Anda.',
-                confirmButtonText: 'OK',
-                confirmButtonColor: '#3b82f6'
-            });
+            showCustomAlert('error', 'Koneksi Error!', 'Tidak dapat terhubung ke server. Periksa koneksi internet Anda.', 3000);
 
             // Reset button
             button.innerHTML = originalText;

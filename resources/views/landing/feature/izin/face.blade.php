@@ -228,10 +228,23 @@
             </div>
         </div>
     </div>
+
+    <!-- Custom Alert Modal -->
+    <div class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[101] hidden items-center justify-center" id="customAlertModal">
+        <div class="bg-surface rounded-3xl p-8 max-w-md w-full mx-4 text-center shadow-2xl shadow-black/20">
+            <div class="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-500" id="customAlertIcon">
+                <span class="material-symbols-outlined text-4xl">check_circle</span>
+            </div>
+            <h2 class="font-headline-md text-headline-md text-on-surface mb-2" id="customAlertTitle">Judul</h2>
+            <p class="text-body-md text-on-surface-variant mb-6" id="customAlertMessage">Pesan</p>
+            <button id="customAlertButton" class="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white transition hover:bg-primary-container">
+                Tutup
+            </button>
+        </div>
+    </div>
 @endsection
 
 @push('script')
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="/faceapi/face-api.min.js"></script>
 <script src="/faceapi/scripts.js"></script>
 <script>
@@ -240,8 +253,65 @@ document.addEventListener('DOMContentLoaded', function() {
     const canvas = document.getElementById("canvas");
     const cameraLoading = document.getElementById("cameraLoading");
     const cameraContainer = document.getElementById("cameraContainer");
+    const customAlertModal = document.getElementById('customAlertModal');
+    const customAlertIcon = document.getElementById('customAlertIcon');
+    const customAlertTitle = document.getElementById('customAlertTitle');
+    const customAlertMessage = document.getElementById('customAlertMessage');
+    const customAlertButton = document.getElementById('customAlertButton');
+    let customAlertTimeout = null;
+    let customAlertCallback = null;
     let izinData = null, izinFiles = null, izinFileNames = null;
     let submitInProgress = false;
+
+    function openCustomAlert(type, title, message, duration = 0, callback = null) {
+        if (!customAlertModal || !customAlertTitle || !customAlertMessage || !customAlertIcon) return;
+
+        if (customAlertTimeout) {
+            clearTimeout(customAlertTimeout);
+            customAlertTimeout = null;
+        }
+
+        customAlertTitle.textContent = title;
+        customAlertMessage.innerHTML = message;
+        customAlertCallback = typeof callback === 'function' ? callback : null;
+
+        if (type === 'success') {
+            customAlertIcon.innerHTML = '<span class="material-symbols-outlined text-4xl text-emerald-500">check_circle</span>';
+        } else if (type === 'error') {
+            customAlertIcon.innerHTML = '<span class="material-symbols-outlined text-4xl text-rose-500">error</span>';
+        } else {
+            customAlertIcon.innerHTML = '<span class="material-symbols-outlined text-4xl text-slate-500">info</span>';
+        }
+
+        customAlertModal.classList.remove('hidden');
+        customAlertModal.classList.add('flex');
+
+        if (duration > 0) {
+            customAlertTimeout = setTimeout(() => {
+                customAlertTimeout = null;
+                closeCustomAlert();
+            }, duration);
+        }
+    }
+
+    function closeCustomAlert() {
+        if (!customAlertModal) return;
+        customAlertModal.classList.add('hidden');
+        customAlertModal.classList.remove('flex');
+        if (customAlertTimeout) {
+            clearTimeout(customAlertTimeout);
+            customAlertTimeout = null;
+        }
+        if (customAlertCallback) {
+            const callback = customAlertCallback;
+            customAlertCallback = null;
+            callback();
+        }
+    }
+
+    if (customAlertButton) {
+        customAlertButton.addEventListener('click', closeCustomAlert);
+    }
 
     // Ambil data izin dari sessionStorage
     try {
@@ -251,8 +321,9 @@ document.addEventListener('DOMContentLoaded', function() {
     } catch (e) {}
 
     if (!izinData || !izinFiles || !izinFileNames) {
-        Swal.fire({ icon: 'error', title: 'Data tidak lengkap', text: 'Silakan isi form izin terlebih dahulu.' })
-            .then(() => window.location.href = '/izin');
+        openCustomAlert('error', 'Data tidak lengkap', 'Silakan isi form izin terlebih dahulu.', 0, function() {
+            window.location.href = '/izin';
+        });
         return;
     }
 
@@ -337,13 +408,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 sessionStorage.removeItem('izinData');
                 sessionStorage.removeItem('izinFiles');
                 sessionStorage.removeItem('izinFileNames');
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Berhasil!',
-                    text: 'Izin berhasil diajukan.',
-                    timer: 2500,
-                    showConfirmButton: false
-                }).then(() => {
+                openCustomAlert('success', 'Berhasil!', 'Izin berhasil diajukan.', 2500, function() {
                     window.location.href = res.url;
                 });
                 return;
@@ -356,11 +421,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .catch((err)=>{
             const ekspresiDetected = document.querySelector('.ekspresi-terdeteksi');
             ekspresiDetected.innerHTML = "<span style='color:#f87171;'>Gagal mengirim izin: "+(err.message||'')+"</span>";
-            Swal.fire({
-                icon: 'error',
-                title: 'Gagal!',
-                text: err.message || 'Gagal mengirim izin.',
-            });
+            openCustomAlert('error', 'Gagal!', err.message || 'Gagal mengirim izin.', 0);
             submitInProgress = false;
         })
         .finally(() => {
