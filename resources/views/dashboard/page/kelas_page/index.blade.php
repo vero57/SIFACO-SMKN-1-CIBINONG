@@ -87,30 +87,19 @@
 @push('scripts')
 <script>
     @if(session('success'))
-        Swal.fire({
-            icon: 'success',
-            title: 'Berhasil!',
-            text: '{{ session("success") }}',
-            timer: 3000,
-            showConfirmButton: false
+        document.addEventListener('DOMContentLoaded', function() {
+            showSuccess('{{ session("success") }}', 'Berhasil!');
         });
     @endif
 
     function confirmDelete(id, className) {
-        Swal.fire({
-            title: 'Yakin ingin menghapus?',
-            text: `Kelas "${className}" akan dihapus secara permanen.`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Ya, Hapus!',
-            cancelButtonText: 'Batal'
-        }).then((result) => {
-            if (result.isConfirmed) {
+        showConfirm(
+            `Kelas "${className}" akan dihapus secara permanen.`,
+            'Yakin ingin menghapus?',
+            function() {
                 document.getElementById('delete-form-' + id).submit();
             }
-        });
+        );
     }
 </script>
 @endpush

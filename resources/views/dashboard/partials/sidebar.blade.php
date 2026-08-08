@@ -49,13 +49,13 @@
                     <i class="fas fa-chalkboard-teacher text-yellow-400 flex-shrink-0"></i>
                     <span class="sidebar-label">Kelas</span>
                 </a>
-            </li>
-            <li>
+            </li>   
+            <!-- <li>
                 <a href="{{ route('dashboard.subjects.index') }}" class="menu-item flex items-center gap-2 md:gap-3 px-2 md:px-4 py-2 md:py-3 rounded-lg text-sm md:text-base {{ request()->routeIs('dashboard.subjects*') ? 'active text-white' : 'text-slate-300' }}">
                     <i class="fas fa-book text-green-400 flex-shrink-0"></i>
                     <span class="sidebar-label">Mata Pelajaran</span>
                 </a>
-            </li>
+            </li> -->
             <li>
                 <a href="{{ route('dashboard.absensi') }}" class="menu-item flex items-center gap-2 md:gap-3 px-2 md:px-4 py-2 md:py-3 rounded-lg text-sm md:text-base {{ request()->routeIs('dashboard.absensi*') ? 'active text-white' : 'text-slate-300' }}">
                     <i class="fas fa-users text-green-400 flex-shrink-0"></i>

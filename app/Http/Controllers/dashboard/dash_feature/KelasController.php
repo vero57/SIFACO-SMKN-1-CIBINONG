@@ -16,11 +16,11 @@ class KelasController extends Controller
     {
         $user = auth()->user();
         if ($user && $user->role && $user->role->name === 'Guru') {
-            $classes = \App\Models\ClassModel::with('walas')
+            $classes = ClassModel::with('walas')
                 ->where('walas_id', $user->id)
                 ->paginate(10);
         } else {
-            $classes = \App\Models\ClassModel::with('walas')->paginate(10);
+            $classes = ClassModel::with('walas')->paginate(10);
         }
         return view('dashboard.page.kelas_page.index', compact('classes'));
     }
@@ -30,7 +30,7 @@ class KelasController extends Controller
      */
     public function create()
     {
-        $teachers = \App\Models\User::whereHas('role', function ($q) {
+        $teachers = User::whereHas('role', function ($q) {
             $q->where('name', 'Guru');
         })->get();
         return view('dashboard.page.kelas_page.create', compact('teachers'));
@@ -45,7 +45,7 @@ class KelasController extends Controller
             'name' => 'required|string|max:255',
             'walas_id' => 'required|exists:users,id'
         ]);
-        \App\Models\ClassModel::create([
+        ClassModel::create([
             'name' => $request->name,
             'walas_id' => $request->walas_id
         ]);
@@ -58,12 +58,12 @@ class KelasController extends Controller
     public function show(string $id)
     {
         $class = ClassModel::with(['walas', 'students', 'attendanceSchedule'])->findOrFail($id);
-        $teachers = \App\Models\User::whereHas('role', function ($q) {
+        $teachers = User::whereHas('role', function ($q) {
             $q->where('name', 'Guru');
         })->get();
 
         // Ambil siswa yang belum masuk kelas manapun
-        $availableStudents = \App\Models\User::whereHas('role', function ($q) {
+        $availableStudents = User::whereHas('role', function ($q) {
             $q->where('name', 'Siswa');
         })
             ->whereDoesntHave('classes')
@@ -103,7 +103,7 @@ class KelasController extends Controller
     }
 
     /**
-     * Tambah siswa ke kelas.
+     * buat nambahin siswa ke kelas.
      */
     public function addStudents(Request $request, $id)
     {
@@ -112,7 +112,7 @@ class KelasController extends Controller
             'student_ids.*' => 'exists:users,id'
         ]);
         $class = ClassModel::findOrFail($id);
-        $studentIds = \App\Models\User::whereIn('id', $request->student_ids)
+        $studentIds = User::whereIn('id', $request->student_ids)
             ->whereHas('role', function ($q) {
                 $q->where('name', 'Siswa');
             })
@@ -126,7 +126,7 @@ class KelasController extends Controller
     }
 
     /**
-     * Keluarkan siswa dari kelas.
+     * buat ngeluarin siswa dari kelas.
      */
     public function removeStudents(Request $request, $id)
     {
@@ -142,29 +142,31 @@ class KelasController extends Controller
 
     /**
      * Update jadwal kelas.
+     * Menerima 4 field waktu bebas (format HH:MM)
      */
     public function updateSchedule(Request $request, $id)
     {
         $request->validate([
-            'schedule_type' => 'required|in:pagi,siang'
+            'start_time_in'  => 'required|date_format:H:i',
+            'end_time_in'    => 'required|date_format:H:i|after:start_time_in',
+            'start_time_out' => 'required|date_format:H:i|after:end_time_in',
+            'end_time_out'   => 'required|date_format:H:i|after:start_time_out',
+        ], [
+            'start_time_in.required'      => 'Waktu mulai masuk wajib diisi.',
+            'start_time_in.date_format'   => 'Format waktu masuk tidak valid (HH:MM).',
+            'end_time_in.after'           => 'Waktu batas masuk harus setelah waktu mulai masuk.',
+            'start_time_out.after'        => 'Waktu mulai pulang harus setelah batas masuk.',
+            'end_time_out.after'          => 'Waktu batas pulang harus setelah waktu mulai pulang.',
         ]);
+
         $class = ClassModel::findOrFail($id);
 
-        if ($request->schedule_type == 'pagi') {
-            $data = [
-                'start_time_in' => '05:00:00',
-                'end_time_in' => '07:00:00',
-                'start_time_out' => '15:00:00',
-                'end_time_out' => '18:00:00',
-            ];
-        } else {
-            $data = [
-                'start_time_in' => '09:00:00',
-                'end_time_in' => '11:00:00',
-                'start_time_out' => '15:00:00',
-                'end_time_out' => '18:00:00',
-            ];
-        }
+        $data = [
+            'start_time_in'  => $request->start_time_in  . ':00',
+            'end_time_in'    => $request->end_time_in     . ':00',
+            'start_time_out' => $request->start_time_out . ':00',
+            'end_time_out'   => $request->end_time_out   . ':00',
+        ];
 
         $schedule = $class->attendanceSchedule;
         if ($schedule) {
@@ -173,7 +175,7 @@ class KelasController extends Controller
             $class->attendanceSchedule()->create($data);
         }
 
-        return redirect()->route('dashboard.kelas.show', $id)->with('success_jadwal', 'Jadwal berhasil diubah.');
+        return redirect()->route('dashboard.kelas.show', $id)->with('success_jadwal', 'Jadwal berhasil diperbarui.');
     }
 
     /**
@@ -196,13 +198,9 @@ class KelasController extends Controller
     public function destroy(string $id)
     {
         $class = ClassModel::findOrFail($id);
-        // Hapus relasi siswa di tabel pivot
         $class->students()->detach();
-        // Hapus jadwal jika ada
         $class->attendanceSchedule()?->delete();
-        // Hapus relasi subject jika ada
         $class->subjects()->detach();
-        // Hapus kelas
         $class->delete();
         return redirect()->route('dashboard.kelas.index')->with('success', 'Kelas berhasil dihapus.');
     }

@@ -142,7 +142,7 @@
             })
             .catch(error => {
                 console.error('Search error:', error);
-                showError('Terjadi kesalahan saat mencari data');
+                displayError('Terjadi kesalahan saat mencari data');
             });
     }
 
@@ -185,42 +185,21 @@
         });
     }
 
-    function showError(message) {
-        if (typeof Swal !== 'undefined') {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: message,
-                timer: 3000,
-                showConfirmButton: false
-            });
-        } else {
-            alert(message);
-        }
+    function displayError(message) {
+        showError(message, 'Error!');
     }
 
     @if(session('success'))
-        Swal.fire({
-            icon: 'success',
-            title: 'Berhasil!',
-            text: '{{ session("success") }}',
-            timer: 3000,
-            showConfirmButton: false
+        document.addEventListener('DOMContentLoaded', function() {
+            showSuccess('{{ session("success") }}', 'Berhasil!');
         });
     @endif
 
     function confirmDelete(id, subjectName) {
-        Swal.fire({
-            title: 'Yakin ingin menghapus?',
-            text: `Mata pelajaran "${subjectName}" akan dihapus secara permanen.`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Ya, Hapus!',
-            cancelButtonText: 'Batal'
-        }).then((result) => {
-            if (result.isConfirmed) {
+        showConfirm(
+            `Mata pelajaran "${subjectName}" akan dihapus secara permanen.`,
+            'Yakin ingin menghapus?',
+            function() {
                 const form = document.createElement('form');
                 form.method = 'POST';
                 form.action = `/dashboard/subjects/${id}`;
@@ -231,7 +210,7 @@
                 document.body.appendChild(form);
                 form.submit();
             }
-        });
+        );
     }
 </script>
 @endpush

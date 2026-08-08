@@ -11,8 +11,8 @@ class ClassSeeder extends Seeder
     {
         DB::table('classes')->insert([
             ['name' => 'X SIJA 1', 'walas_id' => 1],
-            ['name' => 'X1 DKV 1', 'walas_id' => 2],
-            ['name' => 'XI DKV 2 1', 'walas_id' => 3],
+            ['name' => 'XI DKV 2', 'walas_id' => 2],
+            ['name' => 'XI DKV 1', 'walas_id' => 3],
             ['name' => 'XII SIJA 1', 'walas_id' => 4],
         ]);
     }

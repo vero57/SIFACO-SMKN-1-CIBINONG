@@ -6,7 +6,7 @@
     <title>@yield('title', 'Dashboard')</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script defer src="{{ asset('js/custom-alert.js') }}"></script>
     <style>
         * { box-sizing: border-box; }
         html, body {
@@ -99,13 +99,11 @@
                 icon.classList.add('fa-chevron-right');
             }
         });
-
-        // Set SweetAlert default theme to dark
-        Swal.mixin({
-            theme: 'dark'
-        });
     </script>
     @stack('scripts')
     <script src="//unpkg.com/alpinejs" defer></script>
+    
+    {{-- Alert Component --}}
+    @include("components.alert")
 </body>
 </html>

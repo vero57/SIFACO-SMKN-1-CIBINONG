@@ -9,9 +9,9 @@ use App\Listeners\SendAttendanceWhatsapp;
 class EventServiceProvider extends ServiceProvider
 {
     protected $listen = [
-        AttendanceCreated::class => [
-            SendAttendanceWhatsapp::class,
-        ],
+        // AttendanceCreated::class => [
+        //     SendAttendanceWhatsapp::class,
+        // ],
     ];
 
     public function boot(): void

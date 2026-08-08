@@ -1,322 +1,522 @@
 @extends("landing.layout.app",
     [
-        "title" => "Absen SIJA",
+        "title" => "SIFARECO",
     ]
 )
 
-@push("style")
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-
-    body {
-      font-family: 'Inter', sans-serif;
-    }
-
-    .glass-effect {
-      background: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .feature-card {
-      transition: all 0.3s ease;
-    }
-
-    .feature-card:hover {
-      transform: translateY(-5px);
-      background: rgba(255, 255, 255, 0.08);
-    }
-
-    .clock-glow {
-      text-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
-    }
-
-    .styled-table th {
-      font-weight: 600;
-      color: #cbd5e1; /* slate-300 */
-      text-transform: uppercase;
-      font-size: 0.8rem;
-      letter-spacing: 0.05em;
-    }
-
-    .styled-table td {
-      color: #e2e8f0; /* slate-200 */
-      font-size: 0.9rem;
-    }
-  </style>
-@endpush
-
 @section("content")
-<section class="min-h-screen text-slate-200">
-  <div class="container mx-auto px-6 py-8">
-    @include("landing.partials.header")
-    @if(session('success'))
-        <script>
-            Swal.fire({
-                icon: 'success',
-                title: 'Berhasil!',
-                text: '{{ session("success") }}',
-                timer: 3000,
-                showConfirmButton: false
-            });
-        </script>
-    @endif
-    @if($errors->any())
-        <script>
-            Swal.fire({
-                icon: 'error',
-                title: 'Error!',
-                html: '<ul>@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>',
-            });
-        </script>
-    @endif
-    <div class="text-center mb-12 max-sm:mb-6">
-    <h1 class="text-3xl max-sm:text-2xl font-bold text-slate-100 mb-2">
-        @if ($userName)
-            Selamat datang, {{ $userName }}
-        @else
-            Selamat datang di Absen SIJA
-        @endif
-    </h1>
-      <p class="text-slate-400 max-sm:hidden">Kelola kehadiran Anda dengan mudah, jangan lupa untuk selalu Absen ya</p>
-    </div>
+<section class="min-h-screen text-on-surface bg-background antialiased pb-24">
+  @include("landing.partials.header")
 
-    <div class="flex flex-col max-sm:flex-col-reverse">
+  @if(session('success'))
+      <script>
+          Swal.fire({
+              icon: 'success',
+              title: 'Berhasil!',
+              text: '{{ session("success") }}',
+              timer: 3000,
+              showConfirmButton: false
+          });
+      </script>
+  @endif
+  @if($errors->any())
+      <script>
+          Swal.fire({
+              icon: 'error',
+              title: 'Error!',
+              html: '<ul>@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>',
+          });
+      </script>
+  @endif
 
-        <!-- Clock Section -->
-        <!-- <div class="text-center max-sm:mt-16 md:mb-16">
-          <div class="glass-effect rounded-2xl p-8 max-w-md mx-auto">
-            <div class="text-slate-400 text-sm mb-2">Waktu Sekarang</div>
-            <div id="clock" class="text-5xl font-bold text-indigo-300 clock-glow mb-2">00:00:00</div>
-            <div id="date" class="text-slate-400 text-sm"></div>
+  @php
+      $todayAttendance = auth()->check() ? collect($attendances)->first(function($att) {
+          return \Carbon\Carbon::parse($att->date)->isToday();
+      }) : null;
+  @endphp
+
+  <!-- ================= DESKTOP VIEW ================= -->
+  <div class="hidden md:block">
+    <!-- Hero Section -->
+    <section class="relative overflow-hidden pt-xl pb-24 px-md md:px-margin-desktop max-w-7xl mx-auto">
+      <div class="grid lg:grid-cols-2 gap-xl items-center">
+        <div class="space-y-md z-10">
+          <div class="inline-flex items-center gap-xs px-base py-xs bg-primary-fixed text-on-primary-fixed rounded-full">
+            <span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">verified</span>
+            <span class="font-label-sm text-label-sm">
+              @if ($userName)
+                  Selamat datang, {{ $userName }}
+              @else
+                  Selamat datang di SIFARECO
+              @endif
+            </span>
           </div>
-        </div> -->
+          <h1 class="font-display-lg text-display-lg leading-tight text-on-surface">
+            Kehadiran Lebih <span class="text-primary">Cerdas</span> &amp; Terpercaya.
+          </h1>
+          <p class="font-body-lg text-body-lg text-on-surface-variant max-w-xl">
+            SIFARECO menyederhanakan kehadiran sekolah dengan pengenalan wajah tingkat lanjut. Cepat, akurat, dan terintegrasi dengan jurnal harian Anda.
+          </p>
+          <div class="flex flex-wrap gap-base pt-base">
+            @if(auth()->check())
+              <a href="{{ route('feature.absen') }}" class="bg-primary hover:bg-primary-container text-on-primary font-label-md text-label-md px-xl py-md rounded-xl transition-all active:scale-95 flex items-center gap-base shadow-lg shadow-primary/20">
+                <span class="material-symbols-outlined">camera_front</span>
+                Mulai Absen Sekarang
+              </a>
+            @else
+              <a href="{{ route('auth.login-register') }}" class="bg-primary hover:bg-primary-container text-on-primary font-label-md text-label-md px-xl py-md rounded-xl transition-all active:scale-95 flex items-center gap-base shadow-lg shadow-primary/20">
+                <span class="material-symbols-outlined">login</span>
+                Login untuk Absen
+              </a>
+            @endif
+            <a href="#action-cards" class="bg-surface-container-low hover:bg-surface-container-high text-primary font-label-md text-label-md px-xl py-md rounded-xl transition-all active:scale-95 border border-outline-variant flex items-center justify-center">
+              Pelajari Selengkapnya
+            </a>
+          </div>
+        </div>
+        <div class="relative z-10">
+          <div class="relative bg-white p-base rounded-[32px] shadow-2xl overflow-hidden aspect-[4/3] group">
+            <img class="w-full h-full object-cover rounded-[24px]"
+              alt="Face recognition interface mockup"
+              src="{{asset('assets/images/landing/logo_sija.png')}}" />
+            <div class="absolute inset-0 bg-gradient-to-t from-primary/40 to-transparent flex flex-col justify-end p-lg">
+              <div class="glass-card p-md rounded-2xl flex items-center gap-md">
+                <div class="bg-secondary text-on-secondary w-12 h-12 rounded-full flex items-center justify-center">
+                  <span class="material-symbols-outlined">schedule</span>
+                </div>
+                <div>
+                  <p id="clock" class="font-headline-md text-headline-md font-bold text-primary">00:00:00</p>
+                  <p id="date" class="font-label-sm text-label-sm text-on-surface-variant">Loading...</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Decorative element -->
+          <div class="absolute -top-12 -right-12 w-64 h-64 bg-primary-fixed-dim/30 rounded-full blur-3xl -z-10"></div>
+          <div class="absolute -bottom-12 -left-12 w-48 h-48 bg-secondary-fixed/30 rounded-full blur-3xl -z-10"></div>
+        </div>
+      </div>
+    </section>
 
-        <!-- Feature Cards -->
+    <!-- Large Action Cards / Feature Cards -->
+    <section class="py-xl px-md md:px-margin-desktop bg-surface-container-low" id="action-cards">
+      <div class="max-w-7xl mx-auto">
+        <div class="mb-lg">
+          <h2 class="font-headline-lg text-headline-lg text-on-surface">Layanan Utama</h2>
+          <p class="font-body-md text-body-md text-on-surface-variant">Pilih tindakan yang ingin Anda lakukan hari ini.</p>
+        </div>
+
         @if(auth()->check() && (auth()->user()->role->name === 'Admin' || auth()->user()->role->name === 'Guru'))
-        <div class="flex justify-center items-center min-h-[200px]">
-            <a href="{{ route('dashboard.dash') }}">
-              <div class="feature-card glass-effect rounded-xl p-6 text-center cursor-pointer mx-auto" style="max-width:350px;">
-                <div class="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-indigo-500 to-indigo-700 rounded-full flex items-center justify-center">
-                  <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M3 10h2l1 10h12l1-10h2M9 21V10m6 11V10M9 10V7a3 3 0 016 0v3" />
-                  </svg>
+          <div class="flex justify-center items-center py-10">
+            <a href="{{ route('dashboard.dash') }}" class="group relative bg-white p-lg rounded-[32px] border border-outline-variant shadow-sm hover:shadow-xl transition-all cursor-pointer overflow-hidden max-w-md w-full text-center">
+              <div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-bl-full transition-all group-hover:scale-150"></div>
+              <div class="relative z-10 space-y-md flex flex-col items-center">
+                <div class="w-16 h-16 bg-primary-container text-on-primary-container rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <span class="material-symbols-outlined text-4xl" style="font-variation-settings: 'FILL' 1;">dashboard</span>
                 </div>
-                <h3 class="text-lg font-semibold text-slate-100 mb-2">Kembali ke Dashboard</h3>
-                <p class="text-slate-400 text-sm">Menuju halaman dashboard Admin/Guru</p>
+                <div>
+                  <h3 class="font-headline-md text-headline-md font-bold text-on-surface">Dashboard</h3>
+                  <p class="font-body-md text-body-md text-on-surface-variant mt-xs">Kembali ke halaman dashboard Admin/Guru.</p>
+                </div>
+                <div class="pt-base flex items-center text-primary font-label-md text-label-md font-bold">
+                  Buka Dashboard
+                  <span class="material-symbols-outlined ml-xs group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                </div>
               </div>
             </a>
-        </div>
+          </div>
         @else
-        <div class="grid grid-cols-2 md:grid-cols-3 gap-6 max-w-4xl mx-auto justify-center">
-
-        <!-- Clock Section -->
-        <div class="feature-card glass-effect rounded-xl p-6 max-sm:p-4 max-sm:py-6 max-[330px]:p-0 max-[330px]:py-4 text-center cursor-pointer lg:col-span-3 hover:cursor-default">
-
-            <div class="text-slate-400 text-sm mb-2 max-[330px]:hidden">Waktu Sekarang</div>
-            <div id="clock" class="text-5xl max-sm:text-2xl max-[330px]:text-xl font-bold text-indigo-300 clock-glow mb-2">00:00:00</div>
-            <div id="date" class="text-slate-400 max-[330px]:px-6 text-sm"></div>
-
-        </div>
-
-            <!-- Card fitur siswa -->
-
-
-            <a href="{{ route("feature.absen") }}">
-              <div class="feature-card glass-effect rounded-xl p-6 text-center cursor-pointer h-full">
-                <div class="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
-                  <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                  </svg>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+            <!-- Primary Action: Absen Wajah -->
+            <a href="{{ route('feature.absen') }}" class="group relative bg-white p-lg rounded-[32px] border border-outline-variant shadow-sm hover:shadow-xl transition-all cursor-pointer overflow-hidden">
+              <div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-bl-full transition-all group-hover:scale-150"></div>
+              <div class="relative z-10 space-y-md">
+                <div class="w-16 h-16 bg-primary-container text-on-primary-container rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <span class="material-symbols-outlined text-4xl" style="font-variation-settings: 'FILL' 1;">face_retouching_natural</span>
                 </div>
-                <h3 class="text-lg font-semibold text-slate-100 mb-2">Absen</h3>
-                <p class="text-slate-400 text-sm max-sm:hidden">Lakukan absensi dengan foto wajah untuk verifikasi kehadiran</p>
+                <div>
+                  <h3 class="font-headline-md text-headline-md font-bold text-on-surface">Absen Wajah</h3>
+                  <p class="font-body-md text-body-md text-on-surface-variant mt-xs">Catat kehadiran harian dengan verifikasi biometrik wajah.</p>
+                </div>
+                <div class="pt-base flex items-center text-primary font-label-md text-label-md font-bold">
+                  Mulai Absen
+                  <span class="material-symbols-outlined ml-xs group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                </div>
               </div>
             </a>
 
-            <a href="{{ route("feature.izin") }}">
-              <div class="feature-card glass-effect rounded-xl p-6 text-center cursor-pointer h-full">
-                <div class="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center">
-                  <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                  </svg>
+            <!-- Secondary Action: Izin -->
+            <a href="{{ route('feature.izin') }}" class="group relative bg-white p-lg rounded-[32px] border border-outline-variant shadow-sm hover:shadow-xl transition-all cursor-pointer overflow-hidden">
+              <div class="absolute top-0 right-0 w-32 h-32 bg-secondary/5 rounded-bl-full transition-all group-hover:scale-150"></div>
+              <div class="relative z-10 space-y-md">
+                <div class="w-16 h-16 bg-secondary-container text-on-secondary-container rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <span class="material-symbols-outlined text-4xl" style="font-variation-settings: 'FILL' 1;">assignment_late</span>
                 </div>
-                <h3 class="text-lg font-semibold text-slate-100 mb-2">Izin</h3>
-                <p class="text-slate-400 text-sm max-sm:hidden">Ajukan permohonan izin atau cuti dengan mudah dan cepat</p>
+                <div>
+                  <h3 class="font-headline-md text-headline-md font-bold text-on-surface">Izin</h3>
+                  <p class="font-body-md text-body-md text-on-surface-variant mt-xs">Ajukan izin atau sakit dengan mengunggah bukti dokumen resmi.</p>
+                </div>
+                <div class="pt-base flex items-center text-secondary font-label-md text-label-md font-bold">
+                  Buat Pengajuan
+                  <span class="material-symbols-outlined ml-xs group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                </div>
               </div>
             </a>
 
-            <a href="{{ route("feature.jurnal") }}">
-              <div class="feature-card glass-effect rounded-xl p-6 text-center cursor-pointer h-full">
-                <div class="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center">
-                  <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
-                  </svg>
+            <!-- Secondary Action: Jurnal Harian -->
+            <a href="{{ route('feature.jurnal') }}" class="group relative bg-white p-lg rounded-[32px] border border-outline-variant shadow-sm hover:shadow-xl transition-all cursor-pointer overflow-hidden">
+              <div class="absolute top-0 right-0 w-32 h-32 bg-tertiary-fixed-dim/10 rounded-bl-full transition-all group-hover:scale-150"></div>
+              <div class="relative z-10 space-y-md">
+                <div class="w-16 h-16 bg-tertiary-container text-on-tertiary-container rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <span class="material-symbols-outlined text-4xl" style="font-variation-settings: 'FILL' 1;">edit_note</span>
                 </div>
-                <h3 class="text-lg font-semibold text-slate-100 mb-2">Jurnal</h3>
-                <p class="text-slate-400 text-sm max-sm:hidden">Catat aktivitas harian dan laporan kerja Anda</p>
+                <div>
+                  <h3 class="font-headline-md text-headline-md font-bold text-on-surface">Jurnal Harian</h3>
+                  <p class="font-body-md text-body-md text-on-surface-variant mt-xs">Laporkan kegiatan belajar dan pencapaian harian Anda.</p>
+                </div>
+                <div class="pt-base flex items-center text-tertiary font-label-md text-label-md font-bold">
+                  Tulis Jurnal
+                  <span class="material-symbols-outlined ml-xs group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                </div>
               </div>
             </a>
-
-
-        </div>
+          </div>
         @endif
-    </div>
-
+      </div>
+    </section>
 
     @if(!(auth()->check() && (auth()->user()->role->name === 'Admin' || auth()->user()->role->name === 'Guru')))
-    <!-- Section Tabel Absensi -->
-    <div class="mt-16 max-sm:mt-8 max-w-5xl mx-auto">
-      <!-- Tab Header -->
-      <div class="flex justify-center space-x-6 mb-6 max-sm:mb-3">
-        <button class="tab-btn px-6 py-2 rounded-lg font-medium text-slate-300" data-tab="absen">Absen</button>
-        <button class="tab-btn px-6 py-2 rounded-lg font-medium text-slate-300" data-tab="izin">Izin</button>
-        <button class="tab-btn px-6 py-2 rounded-lg font-medium text-slate-300" data-tab="jurnal">Jurnal</button>
-      </div>
-
-      <!-- Table Container -->
-      <div class="glass-effect rounded-xl p-6 overflow-x-auto">
-        @if(!auth()->check())
-          <div class="text-center text-slate-400 py-12">
-            <strong>Silahkan login terlebih dahulu</strong>
+      <!-- History Section -->
+      <section class="py-xl px-md md:px-margin-desktop max-w-7xl mx-auto" id="history">
+        <div class="flex flex-col md:flex-row justify-between items-end gap-md mb-lg">
+          <div>
+            <h2 class="font-headline-lg text-headline-lg text-on-surface">Riwayat Aktivitas</h2>
+            <p class="font-body-md text-body-md text-on-surface-variant">Pantau rekaman kehadiran dan laporan Anda dalam 30 hari terakhir.</p>
           </div>
-        @else
-          <table id="table-absen" class="styled-table w-full text-left border-collapse">
-              <thead class="bg-slate-800/50">
-                  <tr>
-                      <th class="px-4 py-3">Nama</th>
-                      <th class="px-4 py-3">Tanggal</th>
-                      <th class="px-4 py-3">Jam Masuk</th>
-                      <th class="px-4 py-3">Jam Pulang</th>
-                      <th class="px-4 py-3">Aksi</th>
-                  </tr>
-              </thead>
-              <tbody>
-                  @forelse($attendances as $attendance)
-                      <tr class="hover:bg-white/5">
-                          <td class="px-4 py-3">{{ auth()->user()->name }}</td>
-                          <td class="px-4 py-3">{{ \Carbon\Carbon::parse($attendance->date)->format('d F Y') }}</td>
-                          <td class="px-4 py-3">{{ $attendance->time_in ?? '-' }}</td>
-                          <td class="px-4 py-3" id="time-out-{{ $attendance->id }}">
-                              @if($attendance->time_out)
-                                  {{ $attendance->time_out }}
-                              @else
-                                  -
-                              @endif
-                          </td>
-                          <td class="px-4 py-3" id="action-{{ $attendance->id }}">
-                              @if(!$attendance->time_out)
-                                  <button
-                                      onclick="checkOut({{ $attendance->id }})"
-                                      class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition duration-200"
-                                      data-class-id="{{ auth()->user()->classes()->first()->id ?? '' }}"
-                                  >
-                                      Pulang
-                                  </button>
-                              @else
-                                  <span class="text-green-400 text-sm">Sudah Absensi Keluar</span>
-                              @endif
-                          </td>
-                      </tr>
-                  @empty
-                      <tr>
-                          <td colspan="5" class="text-center text-slate-400 py-4">Belum ada data absen</td>
-                      </tr>
-                  @endforelse
-              </tbody>
-          </table>
+          <div class="bg-surface-container p-1 rounded-xl inline-flex">
+            <button class="tab-btn px-md py-xs rounded-lg font-label-md text-label-md transition-all bg-white text-primary shadow-sm" data-tab="absen">Absen</button>
+            <button class="tab-btn px-md py-xs rounded-lg font-label-md text-label-md transition-all text-on-surface-variant hover:bg-white/50" data-tab="izin">Izin</button>
+            <button class="tab-btn px-md py-xs rounded-lg font-label-md text-label-md transition-all text-on-surface-variant hover:bg-white/50" data-tab="jurnal">Jurnal</button>
+          </div>
+        </div>
 
-        <table id="table-izin" class="styled-table w-full text-left border-collapse hidden">
-          <thead class="bg-slate-800/50">
-            <tr>
-              <th class="px-4 py-3">Nama</th>
-              <th class="px-4 py-3">Tanggal</th>
-              <th class="px-4 py-3">Jenis Izin</th>
-              <th class="px-4 py-3">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            @forelse($permissions as $permission)
-                <tr class="hover:bg-white/5">
-                    <td class="px-4 py-3">{{ auth()->user()->name }}</td>
-                    <td class="px-4 py-3">{{ \Carbon\Carbon::parse($permission->created_at)->format('d F Y') }}</td>
-                    <td class="px-4 py-3">{{ ucfirst($permission->type) }}</td>
-                    <td class="px-4 py-3">
-                        @if($permission->status == 'approved')
-                            <span class="px-3 py-1 rounded-full text-xs font-medium bg-green-500/20 text-green-300">
-                                Disetujui
-                            </span>
-                        @elseif($permission->status == 'rejected')
-                            <span class="px-3 py-1 rounded-full text-xs font-medium bg-red-500/20 text-red-300">
-                                Ditolak
-                            </span>
-                        @else
-                            <span class="px-3 py-1 rounded-full text-xs font-medium bg-yellow-500/20 text-yellow-300">
-                                Pending
-                            </span>
-                        @endif
-                    </td>
-                </tr>
-            @empty
+        <div class="bg-white rounded-[32px] border border-outline-variant shadow-sm overflow-hidden overflow-x-auto">
+          @if(!auth()->check())
+            <div class="text-center text-on-surface-variant py-12">
+              <strong>Silahkan login terlebih dahulu untuk melihat riwayat aktivitas Anda</strong>
+            </div>
+          @else
+            <!-- Table Absen -->
+            <table id="table-absen" class="w-full text-left border-collapse min-w-[700px]">
+              <thead class="bg-surface-container-low border-b border-outline-variant">
                 <tr>
-                    <td colspan="4" class="text-center text-slate-400 py-4">Belum ada data izin</td>
+                  <th class="px-lg py-md font-label-md text-label-md text-on-surface uppercase tracking-wider">Nama</th>
+                  <th class="px-lg py-md font-label-md text-label-md text-on-surface uppercase tracking-wider">Tanggal</th>
+                  <th class="px-lg py-md font-label-md text-label-md text-on-surface uppercase tracking-wider">Jam Masuk</th>
+                  <th class="px-lg py-md font-label-md text-label-md text-on-surface uppercase tracking-wider">Jam Pulang</th>
+                  <th class="px-lg py-md font-label-md text-label-md text-on-surface uppercase tracking-wider">Aksi</th>
                 </tr>
-            @endforelse
-          </tbody>
-        </table>
-
-          <table id="table-jurnal" class="styled-table w-full text-left border-collapse hidden">
-            <thead class="bg-slate-800/50">
-              <tr>
-                <th class="px-4 py-3">Nama</th>
-                <th class="px-4 py-3">Tanggal</th>
-                <th class="px-4 py-3">Mapel</th>
-                <th class="px-4 py-3">Aktivitas</th>
-              </tr>
-            </thead>
-            <tbody>
-              @forelse($journals as $journal)
-                  <tr class="hover:bg-white/5">
-                      <td class="px-4 py-3">{{ auth()->user()->name }}</td>
-                      <td class="px-4 py-3">{{ \Carbon\Carbon::parse($journal->created_at)->format('d F Y') }}</td>
-
-                      <td class="px-4 py-3">{{ $journal->subject->name ?? $journal->subject }}</td>
-
-                      <td class="px-4 py-3">{{ $journal->description }}</td>
+              </thead>
+              <tbody class="divide-y divide-outline-variant">
+                @forelse($attendances as $attendance)
+                  <tr class="hover:bg-surface-container-lowest transition-colors">
+                    <td class="px-lg py-lg">
+                      <p class="font-body-md text-body-md font-bold text-on-surface">{{ auth()->user()->name }}</p>
+                    </td>
+                    <td class="px-lg py-lg">
+                      <p class="font-body-md text-body-md font-bold text-on-surface">{{ \Carbon\Carbon::parse($attendance->date)->format('d F Y') }}</p>
+                    </td>
+                    <td class="px-lg py-lg">
+                      <div class="flex items-center gap-base">
+                        <span class="material-symbols-outlined text-primary">login</span>
+                        <span class="font-body-md text-body-md">{{ $attendance->time_in ?? '-' }}</span>
+                      </div>
+                    </td>
+                    <td class="px-lg py-lg" id="time-out-{{ $attendance->id }}">
+                      <div class="flex items-center gap-base">
+                        <span class="material-symbols-outlined text-tertiary">logout</span>
+                        <span class="font-body-md text-body-md">{{ $attendance->time_out ?? '-' }}</span>
+                      </div>
+                    </td>
+                    <td class="px-lg py-lg" id="action-{{ $attendance->id }}">
+                      @if(!$attendance->time_out)
+                        <button
+                          onclick="checkOut({{ $attendance->id }})"
+                          class="bg-primary hover:bg-primary-container text-on-primary font-label-sm text-label-sm px-md py-xs rounded-lg transition-all active:scale-95 shadow-sm"
+                          data-class-id="{{ auth()->user()->classes()->first()->id ?? '' }}"
+                        >
+                          Pulang
+                        </button>
+                      @else
+                        <span class="inline-flex items-center px-md py-xs rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm">
+                          <span class="w-1.5 h-1.5 rounded-full bg-on-secondary-container mr-2"></span>
+                          Sudah Absensi Keluar
+                        </span>
+                      @endif
+                    </td>
                   </tr>
-              @empty
+                @empty
                   <tr>
-                      <td colspan="4" class="text-center text-slate-400 py-4">Belum ada data jurnal</td>
+                    <td colspan="5" class="text-center text-on-surface-variant py-8">Belum ada data absen</td>
                   </tr>
-              @endforelse
-            </tbody>
-          </table>
-        @endif
-      </div>
-    </div>
+                @endforelse
+              </tbody>
+            </table>
+
+            <!-- Table Izin -->
+            <table id="table-izin" class="w-full text-left border-collapse min-w-[700px] hidden">
+              <thead class="bg-surface-container-low border-b border-outline-variant">
+                <tr>
+                  <th class="px-lg py-md font-label-md text-label-md text-on-surface uppercase tracking-wider">Nama</th>
+                  <th class="px-lg py-md font-label-md text-label-md text-on-surface uppercase tracking-wider">Tanggal</th>
+                  <th class="px-lg py-md font-label-md text-label-md text-on-surface uppercase tracking-wider">Jenis Izin</th>
+                  <th class="px-lg py-md font-label-md text-label-md text-on-surface uppercase tracking-wider">Status</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-outline-variant">
+                @forelse($permissions as $permission)
+                  <tr class="hover:bg-surface-container-lowest transition-colors">
+                    <td class="px-lg py-lg">
+                      <p class="font-body-md text-body-md font-bold text-on-surface">{{ auth()->user()->name }}</p>
+                    </td>
+                    <td class="px-lg py-lg">
+                      <p class="font-body-md text-body-md font-bold text-on-surface">{{ \Carbon\Carbon::parse($permission->created_at)->format('d F Y') }}</p>
+                    </td>
+                    <td class="px-lg py-lg">
+                      <div class="flex items-center gap-base">
+                        <span class="material-symbols-outlined text-secondary">assignment_late</span>
+                        <span class="font-body-md text-body-md">{{ ucfirst($permission->type) }}</span>
+                      </div>
+                    </td>
+                    <td class="px-lg py-lg">
+                      @if($permission->status == 'approved')
+                        <span class="inline-flex items-center px-md py-xs rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm">
+                          <span class="w-1.5 h-1.5 rounded-full bg-on-secondary-container mr-2"></span>
+                          Disetujui
+                        </span>
+                      @elseif($permission->status == 'rejected')
+                        <span class="inline-flex items-center px-md py-xs rounded-full bg-error-container text-on-error-container font-label-sm text-label-sm">
+                          <span class="w-1.5 h-1.5 rounded-full bg-error mr-2"></span>
+                          Ditolak
+                        </span>
+                      @else
+                        <span class="inline-flex items-center px-md py-xs rounded-full bg-primary-fixed text-on-primary-fixed font-label-sm text-label-sm">
+                          <span class="w-1.5 h-1.5 rounded-full bg-primary mr-2"></span>
+                          Pending
+                        </span>
+                      @endif
+                    </td>
+                  </tr>
+                @empty
+                  <tr>
+                    <td colspan="4" class="text-center text-on-surface-variant py-8">Belum ada data izin</td>
+                  </tr>
+                @endforelse
+              </tbody>
+            </table>
+
+            <!-- Table Jurnal -->
+            <table id="table-jurnal" class="w-full text-left border-collapse min-w-[700px] hidden">
+              <thead class="bg-surface-container-low border-b border-outline-variant">
+                <tr>
+                  <th class="px-lg py-md font-label-md text-label-md text-on-surface uppercase tracking-wider">Nama</th>
+                  <th class="px-lg py-md font-label-md text-label-md text-on-surface uppercase tracking-wider">Tanggal</th>
+                  <th class="px-lg py-md font-label-md text-label-md text-on-surface uppercase tracking-wider">Mapel</th>
+                  <th class="px-lg py-md font-label-md text-label-md text-on-surface uppercase tracking-wider">Aktivitas</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-outline-variant">
+                @forelse($journals as $journal)
+                  <tr class="hover:bg-surface-container-lowest transition-colors">
+                    <td class="px-lg py-lg">
+                      <p class="font-body-md text-body-md font-bold text-on-surface">{{ auth()->user()->name }}</p>
+                    </td>
+                    <td class="px-lg py-lg">
+                      <p class="font-body-md text-body-md font-bold text-on-surface">{{ \Carbon\Carbon::parse($journal->created_at)->format('d F Y') }}</p>
+                    </td>
+                    <td class="px-lg py-lg">
+                      <div class="flex items-center gap-base">
+                        <span class="material-symbols-outlined text-tertiary">edit_note</span>
+                        <span class="font-body-md text-body-md font-bold text-on-surface">{{ $journal->subject->name ?? $journal->subject }}</span>
+                      </div>
+                    </td>
+                    <td class="px-lg py-lg font-body-md text-body-md text-on-surface-variant">
+                      {{ $journal->description }}
+                    </td>
+                  </tr>
+                @empty
+                  <tr>
+                    <td colspan="4" class="text-center text-on-surface-variant py-8">Belum ada data jurnal</td>
+                  </tr>
+                @endforelse
+              </tbody>
+            </table>
+          @endif
+        </div>
+      </section>
     @endif
   </div>
+
+  <!-- ================= MOBILE VIEW ================= -->
+  <div class="block md:hidden px-margin-mobile mt-sm space-y-md">
+    <!-- Welcome Hero -->
+    <section class="relative overflow-hidden rounded-xl p-md bg-primary text-on-primary soft-shadow">
+      <div class="absolute -right-12 -top-12 w-48 h-48 bg-primary-container opacity-20 rounded-full blur-3xl"></div>
+      <div class="relative z-10">
+        <p class="font-label-md text-label-md opacity-80 mb-xs">Selamat pagi,</p>
+        <h1 class="font-headline-lg-mobile text-headline-lg-mobile font-bold mb-base">
+          {{ $userName ?? 'Siswa' }}
+        </h1>
+        <div class="flex items-center gap-xs bg-white/10 w-fit px-sm py-1 rounded-full backdrop-blur-md">
+          <span class="material-symbols-outlined text-[18px]">calendar_today</span>
+          <span id="date-mobile" class="font-label-sm text-label-sm">Loading...</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Attendance Status Quick View -->
+    <section class="grid grid-cols-2 gap-sm">
+      <div class="bg-surface-container-lowest p-sm rounded-xl border border-outline-variant flex flex-col gap-xs">
+        <span class="font-label-sm text-label-sm text-on-surface-variant">Absensi Hari Ini</span>
+        <span class="font-headline-md text-headline-md text-secondary">
+          {{ $todayAttendance ? ($todayAttendance->time_in ?? '-') : '-' }}
+        </span>
+        <div class="flex items-center gap-xs">
+          <div class="w-2 h-2 rounded-full {{ $todayAttendance ? 'bg-secondary' : 'bg-outline' }}"></div>
+          <span class="font-label-sm text-label-sm {{ $todayAttendance ? 'text-secondary' : 'text-on-surface-variant' }}">
+            {{ $todayAttendance ? 'Sudah Masuk' : 'Belum Absen' }}
+          </span>
+        </div>
+      </div>
+      <div class="bg-surface-container-lowest p-sm rounded-xl border border-outline-variant flex flex-col gap-xs">
+        <span class="font-label-sm text-label-sm text-on-surface-variant">Status Jurnal</span>
+        <span class="font-headline-md text-headline-md text-on-surface">
+          {{ auth()->check() ? $journals->count() : 0 }}
+        </span>
+        <span class="font-label-sm text-label-sm text-on-surface-variant">Selesai diinput</span>
+      </div>
+    </section>
+
+    <!-- Quick Action Cards (Bento Style) -->
+    <section class="space-y-sm">
+      <h2 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Layanan Cepat</h2>
+      <div class="grid grid-cols-6 gap-sm">
+        @if(auth()->check() && (auth()->user()->role->name === 'Admin' || auth()->user()->role->name === 'Guru'))
+          <a href="{{ route('dashboard.dash') }}" class="col-span-6 bg-surface-container-lowest border border-primary/20 rounded-xl p-md flex items-center justify-between group active:scale-[0.98] transition-transform scanner-glow border-2">
+            <div class="flex items-center gap-md">
+              <div class="w-14 h-14 bg-primary-container/10 rounded-xl flex items-center justify-center text-primary">
+                <span class="material-symbols-outlined !text-[32px]" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+              </div>
+              <div class="text-left">
+                <span class="font-headline-md text-headline-md block text-primary">Dashboard</span>
+                <span class="font-body-sm text-body-sm text-on-surface-variant">Kembali ke dashboard admin/guru</span>
+              </div>
+            </div>
+            <span class="material-symbols-outlined text-primary group-hover:translate-x-1 transition-transform">arrow_forward_ios</span>
+          </a>
+        @else
+          <!-- Absen - Main Action -->
+          <a href="{{ route('feature.absen') }}" class="col-span-6 bg-surface-container-lowest border border-primary/20 rounded-xl p-md flex items-center justify-between group active:scale-[0.98] transition-transform scanner-glow border-2">
+            <div class="flex items-center gap-md">
+              <div class="w-14 h-14 bg-primary-container/10 rounded-xl flex items-center justify-center text-primary">
+                <span class="material-symbols-outlined !text-[32px]" style="font-variation-settings: 'FILL' 1;">shape_recognition</span>
+              </div>
+              <div class="text-left">
+                <span class="font-headline-md text-headline-md block text-primary">Absen</span>
+                <span class="font-body-sm text-body-sm text-on-surface-variant">Scan wajah untuk kehadiran</span>
+              </div>
+            </div>
+            <span class="material-symbols-outlined text-primary group-hover:translate-x-1 transition-transform">arrow_forward_ios</span>
+          </a>
+          <!-- Izin -->
+          <a href="{{ route('feature.izin') }}" class="col-span-3 bg-surface-container-lowest border border-outline-variant rounded-xl p-md flex flex-col gap-sm active:scale-95 transition-transform">
+            <div class="w-12 h-12 bg-tertiary-container/10 rounded-lg flex items-center justify-center text-tertiary">
+              <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">assignment_late</span>
+            </div>
+            <div class="text-left">
+              <span class="font-label-md text-label-md font-bold block">Izin</span>
+              <span class="font-label-sm text-label-sm text-on-surface-variant">Sakit / Keperluan</span>
+            </div>
+          </a>
+          <!-- Jurnal -->
+          <a href="{{ route('feature.jurnal') }}" class="col-span-3 bg-surface-container-lowest border border-outline-variant rounded-xl p-md flex flex-col gap-sm active:scale-95 transition-transform">
+            <div class="w-12 h-12 bg-secondary-container/20 rounded-lg flex items-center justify-center text-secondary">
+              <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">menu_book</span>
+            </div>
+            <div class="text-left">
+              <span class="font-label-md text-label-md font-bold block">Jurnal</span>
+              <span class="font-label-sm text-label-sm text-on-surface-variant">Laporan harian</span>
+            </div>
+          </a>
+        @endif
+      </div>
+    </section>
+
+    <!-- Riwayat Aktivitas Mobile -->
+    @if(!(auth()->check() && (auth()->user()->role->name === 'Admin' || auth()->user()->role->name === 'Guru')))
+      <section class="space-y-sm">
+        <div class="flex justify-between items-center">
+          <h2 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Riwayat Aktivitas</h2>
+          <a href="#history" class="text-primary font-label-md text-label-md">Lihat Semua</a>
+        </div>
+        <div class="space-y-base">
+          @forelse(collect($attendances ?? [])->take(3) as $attendance)
+            <div class="bg-surface-container-lowest p-sm rounded-xl border border-outline-variant flex items-center justify-between">
+              <div class="flex items-center gap-sm">
+                <div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-secondary">
+                  <span class="material-symbols-outlined">check_circle</span>
+                </div>
+                <div>
+                  <p class="font-label-md text-label-md text-on-surface">Hadir - Absen Masuk</p>
+                  <p class="font-body-sm text-body-sm text-on-surface-variant">
+                    {{ \Carbon\Carbon::parse($attendance->date)->format('l, d M') }} • {{ $attendance->time_in ?? '-' }}
+                  </p>
+                </div>
+              </div>
+              <span class="bg-secondary/10 text-secondary px-base py-0.5 rounded-full font-label-sm text-label-sm">Hadir</span>
+            </div>
+          @empty
+            <div class="bg-surface-container-lowest p-sm rounded-xl border border-outline-variant text-center text-on-surface-variant py-4">
+              Belum ada data aktivitas
+            </div>
+          @endforelse
+        </div>
+      </section>
+    @endif
+  </div>
+
+  @include("landing.partials.nav")
 </section>
 @endsection
 
 @push("script")
 <script>
-    // Clock
+    // Clock & Live Date
     function updateClock() {
       const now = new Date();
-      document.getElementById('clock').textContent = now.toLocaleTimeString('id-ID', { hour12: false });
-      document.getElementById('date').textContent = now.toLocaleDateString('id-ID', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      });
+      const clockEl = document.getElementById('clock');
+      const dateEl = document.getElementById('date');
+      const dateMobileEl = document.getElementById('date-mobile');
+
+      if (clockEl) {
+        clockEl.textContent = now.toLocaleTimeString('id-ID', { hour12: false });
+      }
+      if (dateEl) {
+        dateEl.textContent = now.toLocaleDateString('id-ID', {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        });
+      }
+      if (dateMobileEl) {
+        dateMobileEl.textContent = now.toLocaleDateString('id-ID', {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        });
+      }
     }
     setInterval(updateClock, 1000);
     updateClock();
@@ -331,23 +531,36 @@
 
     tabButtons.forEach(btn => {
       btn.addEventListener('click', () => {
-        Object.values(tabTables).forEach(t => t.classList.add('hidden'));
-        tabButtons.forEach(b => b.classList.remove('bg-indigo-500/20', 'text-indigo-300'));
+        Object.values(tabTables).forEach(t => {
+          if (t) t.classList.add('hidden');
+        });
+        tabButtons.forEach(b => {
+          b.classList.remove('bg-white', 'text-primary', 'shadow-sm');
+          b.classList.add('text-on-surface-variant', 'hover:bg-white/50');
+        });
 
         const target = btn.getAttribute('data-tab');
-        tabTables[target].classList.remove('hidden');
-        btn.classList.add('bg-indigo-500/20', 'text-indigo-300');
+        if (tabTables[target]) {
+          tabTables[target].classList.remove('hidden');
+        }
+        btn.classList.add('bg-white', 'text-primary', 'shadow-sm');
+        btn.classList.remove('text-on-surface-variant', 'hover:bg-white/50');
       });
     });
 
-    // Set tab pertama aktif jika ada data
-    if (document.getElementById('table-absen')) {
+    // Set first tab active if exists
+    if (tabButtons.length > 0) {
         tabButtons[0].click();
     }
 
-    // User Profile
-    document.getElementById('btn-profile')?.addEventListener('click', () => {
-      alert('Profil Pengguna\n\nFitur ini akan menampilkan informasi profil dan pengaturan akun Anda.');
+    // Micro-interactions for buttons
+    document.querySelectorAll("button").forEach((button) => {
+        button.addEventListener("touchstart", function () {
+            this.classList.add("scale-95");
+        });
+        button.addEventListener("touchend", function () {
+            this.classList.remove("scale-95");
+        });
     });
 
     // Check Out Function
@@ -385,9 +598,15 @@
 
             if (result.success) {
                 // Update tampilan
-                document.getElementById(`time-out-${attendanceId}`).textContent = result.time_out;
-                document.getElementById(`action-${attendanceId}`).innerHTML =
-                    '<span class="text-green-400 text-sm font-medium">✓ Check Out</span>';
+                const timeOutContainer = document.getElementById(`time-out-${attendanceId}`);
+                if (timeOutContainer) {
+                    timeOutContainer.innerHTML = `<div class="flex items-center gap-base"><span class="material-symbols-outlined text-tertiary">logout</span><span class="font-body-md text-body-md">${result.time_out}</span></div>`;
+                }
+
+                const actionContainer = document.getElementById(`action-${attendanceId}`);
+                if (actionContainer) {
+                    actionContainer.innerHTML = `<span class="inline-flex items-center px-md py-xs rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm"><span class="w-1.5 h-1.5 rounded-full bg-on-secondary-container mr-2"></span>✓ Check Out</span>`;
+                }
 
                 // Notifikasi sukses
                 Swal.fire({
@@ -398,18 +617,7 @@
                     showConfirmButton: false,
                     toast: true,
                     position: 'top-end',
-                    showClass: {
-                        popup: 'animate__animated animate__fadeInDown'
-                    },
-                    hideClass: {
-                        popup: 'animate__animated animate__fadeOutUp'
-                    }
                 });
-
-                // Refresh halaman setelah 2 detik (opsional)
-                // setTimeout(() => {
-                //     location.reload();
-                // }, 2000);
 
             } else {
                 // Notifikasi error
@@ -442,13 +650,6 @@
             button.disabled = false;
             button.classList.remove('opacity-75');
         }
-    }
-
-    // Function untuk format waktu
-    function formatTime(timeString) {
-        if (!timeString) return '-';
-        const [hours, minutes] = timeString.split(':');
-        return `${hours}:${minutes}`;
     }
 </script>
 @endpush

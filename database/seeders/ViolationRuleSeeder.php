@@ -11,6 +11,7 @@ class ViolationRuleSeeder extends Seeder
     {
         DB::table('violation_rules')->insert([
             ['name' => 'Terlambat', 'points' => 5],
+            ['name' => 'Alfa', 'points' => 10],
             ['name' => 'Bolos', 'points' => 10],
             ['name' => 'Bawa HP saat jam pelajaran', 'points' => 3],
             ['name' => 'Tidak memakai seragam lengkap', 'points' => 2],

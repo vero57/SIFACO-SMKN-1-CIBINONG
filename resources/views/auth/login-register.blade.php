@@ -1,4 +1,4 @@
-@extends('landing.layout.app', ['title' => 'Login / Register'])
+@extends('landing.layout.reglog', ['title' => 'Login / Register'])
 
 @push('style')
 <style>
@@ -11,7 +11,7 @@ body {
 /* ================= CONTAINER ================= */
 .auth-container {
     min-height: 700px;
-    background: radial-gradient(circle at top, #1e293b 0%, #020617 60%);
+    background: radial-gradient(circle at top, #D8E3F2 0%, #E9EBF0 60%);
 }
 
 /* ================= CARD ================= */
@@ -40,8 +40,8 @@ body {
     inset: 0;
     background: linear-gradient(
         180deg,
-        rgba(255,255,255,0.12),
-        rgba(255,255,255,0.05)
+        #C1D5F7,
+        #D5DDED
     );
     backdrop-filter: blur(18px);
     border-radius: 1.5rem;
@@ -85,13 +85,13 @@ body {
     text-align: center;
     font-size: 1.75rem;
     font-weight: 700;
-    color: #e0e7ff;
+    color: #020617;
     margin-bottom: 1.6rem;
 }
 
 /* ================= FORM ================= */
 .auth-form label {
-    color: #c7d2fe;
+    color: #121214;
     font-size: 0.85rem;
     font-weight: 500;
     margin-bottom: 0.3rem;
@@ -104,14 +104,14 @@ body {
     padding: 0.75rem 0.9rem;
     border-radius: 0.8rem;
     border: 1px solid rgba(255,255,255,0.15);
-    background: rgba(15,23,42,0.7);
+    background: #E8F0FE;
     color: #e5e7eb;
     font-size: 0.95rem;
     margin-bottom: 0.75rem;
 }
 
 .auth-form input::placeholder {
-    color: #94a3b8;
+    color: #393C45;
 }
 
 .auth-form input:focus,
@@ -128,11 +128,12 @@ body {
     background-repeat: no-repeat;
     background-position: right 0.9rem center;
     background-size: 1rem;
+    color: #393C45;
 }
 
 .auth-form option {
-    background: #020617;
-    color: #e5e7eb;
+    background: #C8CBE0;
+    color: black;
 }
 
 /* ================= BUTTON ================= */
@@ -215,7 +216,7 @@ body {
                 </form>
             </div>
             <!-- Register Form -->
-            <div class="flip-card-back h-fit lg:pb-20">
+            <div class="flip-card-back h-fit lg:pb-8">
                 <div class="auth-title">Register</div>
                 <form class="auth-form" method="POST" action="{{ route('auth.registersiswa') }}">
                     @csrf
@@ -251,7 +252,7 @@ body {
 
                     <label for="register-class">Kelas</label>
                     <select id="register-class" name="class_id" required class="auth-form-select">
-                        <option value="">Pilih Kelas</option>
+                        <option value="" class="">Pilih Kelas</option>
                         @foreach($classes as $class)
                             <option value="{{ $class->id }}" {{ old('class_id') == $class->id ? 'selected' : '' }}>{{ $class->name }}</option>
                         @endforeach
