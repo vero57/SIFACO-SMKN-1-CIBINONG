@@ -12,17 +12,27 @@ class KelasController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
+        $perPage = $request->input('per_page', 10);
+        $allowedPerPage = [10, 25, 50, 100];
+        if (!in_array((int) $perPage, $allowedPerPage, true)) {
+            $perPage = 10;
+        }
+
         $user = auth()->user();
         if ($user && $user->role && $user->role->name === 'Guru') {
             $classes = ClassModel::with('walas')
                 ->where('walas_id', $user->id)
-                ->paginate(10);
+                ->paginate($perPage)
+                ->appends(['per_page' => $perPage]);
         } else {
-            $classes = ClassModel::with('walas')->paginate(10);
+            $classes = ClassModel::with('walas')
+                ->paginate($perPage)
+                ->appends(['per_page' => $perPage]);
         }
-        return view('dashboard.page.kelas_page.index', compact('classes'));
+
+        return view('dashboard.page.kelas_page.index', compact('classes', 'perPage'));
     }
 
     /**

@@ -8,20 +8,72 @@
 @section('content')
     <div id="contentArea" class="w-full h-full">
         <div id="dashboard-content" class="content-section">
-            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2 sm:gap-3 md:gap-4 mb-4 md:mb-6">
-                <div class="bg-slate-800/50 backdrop-blur-sm rounded-lg sm:rounded-xl p-3 sm:p-4 md:p-6 border border-slate-700">
-                    <div class="flex items-center justify-between gap-2 sm:gap-3">
+            <div class="gap-2 mb-4">
+                <h2 class="text-4xl font-semibold">Overview</h2>
+                <p>Ringkasan Aktivitas Hari ini, {{ $todayString }}</p>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4 mb-4 md:mb-6">
+                <div class="bg-white backdrop-blur-sm rounded-lg sm:rounded-xl p-3 sm:p-4 md:p-6 border border-slate-400">
+                    <div class="flex items-start justify-between gap-2 sm:gap-3">
                         <div class="min-w-0">
-                            <p class="text-slate-400 text-xs sm:text-sm">Total Siswa</p>
-                            <p class="text-lg sm:text-xl md:text-2xl font-bold text-white">{{ $totalSiswa }}</p>
+                            <div class="w-10 h-10 sm:w-12 sm:h-12 bg-blue-500/30 rounded-lg flex items-center justify-center flex-shrink-0 mb-4">
+                                <i class="fas fa-users text-blue-500 text-base sm:text-lg md:text-xl"></i>
+                            </div>
+                            <p class="text-slate-700 text-base max-sm:text-sm font-semibold">Total Siswa</p>
+                            <p class="text-lg sm:text-xl md:text-2xl font-bold text-gray-700">{{ $totalSiswa }}</p>
                         </div>
-                        <div class="w-10 h-10 sm:w-12 sm:h-12 bg-blue-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                            <i class="fas fa-users text-blue-400 text-base sm:text-lg md:text-xl"></i>
+                        <div class="bg-slate-400/20 px-2 py-1 rounded-lg flex items-center justify-center flex-shrink-0 mb-4">
+                            <p class="font-semibold text-gray-700">Total</p>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-slate-800/50 backdrop-blur-sm rounded-lg sm:rounded-xl p-3 sm:p-4 md:p-6 border border-slate-700">
+                <div class="bg-white backdrop-blur-sm rounded-lg sm:rounded-xl p-3 sm:p-4 md:p-6 border border-slate-400">
+                    <div class="flex items-start justify-between gap-2 sm:gap-3">
+                        <div class="min-w-0">
+                            <div class="w-10 h-10 sm:w-12 sm:h-12 bg-green-500/30 rounded-lg flex items-center justify-center flex-shrink-0 mb-4">
+                                <i class="fas fa-user-circle text-green-500 text-base sm:text-lg md:text-xl"></i>
+                            </div>
+                            <p class="text-slate-700 text-base max-sm:text-sm font-semibold">Presensi Hari Ini</p>
+                            <p class="text-lg sm:text-xl md:text-2xl font-bold text-gray-700">{{ $persentasePresensi }}%</p>
+                        </div>
+                        <div class="bg-slate-400/20 px-2 py-1 rounded-lg flex items-center justify-center flex-shrink-0 mb-4">
+                            <p class="font-semibold text-gray-700">Siswa Hadir</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white backdrop-blur-sm rounded-lg sm:rounded-xl p-3 sm:p-4 md:p-6 border border-slate-400">
+                    <div class="flex items-start justify-between gap-2 sm:gap-3">
+                        <div class="min-w-0">
+                            <div class="w-10 h-10 sm:w-12 sm:h-12 bg-yellow-500/30 rounded-lg flex items-center justify-center flex-shrink-0 mb-4">
+                                <i class="fas fa-file-text text-yellow-500 text-base sm:text-lg md:text-xl"></i>
+                            </div>
+                            <p class="text-slate-700 text-base max-sm:text-sm font-semibold">Izin Pending</p>
+                            <p class="text-lg sm:text-xl md:text-2xl font-bold text-gray-700">{{ $izinPending }}</p>
+                        </div>
+                        <div class="bg-slate-400/20 px-2 py-1 rounded-lg flex items-center justify-center flex-shrink-0 mb-4">
+                            <p class="font-semibold text-gray-700">Butuh Aksi</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white backdrop-blur-sm rounded-lg sm:rounded-xl p-3 sm:p-4 md:p-6 border border-slate-400">
+                    <div class="flex items-start justify-between gap-2 sm:gap-3">
+                        <div class="min-w-0">
+                            <div class="w-10 h-10 sm:w-12 sm:h-12 bg-red-500/30 rounded-lg flex items-center justify-center flex-shrink-0 mb-4">
+                                <i class="fas fa-warning text-red-500 text-base sm:text-lg md:text-xl"></i>
+                            </div>
+                            <p class="text-slate-700 text-base max-sm:text-sm font-semibold">Pelanggaran Terkini</p>
+                            <p class="text-lg sm:text-xl md:text-2xl font-bold text-gray-700">{{ $pelanggaranTerkini }}</p>
+                        </div>
+                        <div class="bg-slate-400/20 px-2 py-1 rounded-lg flex items-center justify-center flex-shrink-0 mb-4">
+                            <p class="font-semibold text-gray-700">Kasus</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- <div class="bg-white backdrop-blur-sm rounded-lg sm:rounded-xl p-3 sm:p-4 md:p-6 border border-slate-400">
                     <div class="flex items-center justify-between gap-2 sm:gap-3">
                         <div class="min-w-0">
                             <p class="text-slate-400 text-xs sm:text-sm">Siswa Masuk</p>
@@ -31,21 +83,9 @@
                             <i class="fas fa-check-circle text-green-400 text-base sm:text-lg md:text-xl"></i>
                         </div>
                     </div>
-                </div>
+                </div> -->
 
-                <div class="bg-slate-800/50 backdrop-blur-sm rounded-lg sm:rounded-xl p-3 sm:p-4 md:p-6 border border-slate-700">
-                    <div class="flex items-center justify-between gap-2 sm:gap-3">
-                        <div class="min-w-0">
-                            <p class="text-slate-400 text-xs sm:text-sm">Siswa Sakit</p>
-                            <p class="text-lg sm:text-xl md:text-2xl font-bold text-white">{{ $siswaSakit }}</p>
-                        </div>
-                        <div class="w-10 h-10 sm:w-12 sm:h-12 bg-red-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                            <i class="fas fa-medkit text-red-400 text-base sm:text-lg md:text-xl"></i>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-slate-800/50 backdrop-blur-sm rounded-lg sm:rounded-xl p-3 sm:p-4 md:p-6 border border-slate-700">
+                <!-- <div class="bg-white backdrop-blur-sm rounded-lg sm:rounded-xl p-3 sm:p-4 md:p-6 border border-slate-400">
                     <div class="flex items-center justify-between gap-2 sm:gap-3">
                         <div class="min-w-0">
                             <p class="text-slate-400 text-xs sm:text-sm">Siswa Izin</p>
@@ -55,32 +95,10 @@
                             <i class="fas fa-envelope text-yellow-400 text-base sm:text-lg md:text-xl"></i>
                         </div>
                     </div>
-                </div>
-                <div class="bg-slate-800/50 backdrop-blur-sm rounded-lg sm:rounded-xl p-3 sm:p-4 md:p-6 border border-slate-700">
-                    <div class="flex items-center justify-between gap-2 sm:gap-3">
-                        <div class="min-w-0">
-                            <p class="text-slate-400 text-xs sm:text-sm">Siswa Dispen</p>
-                            <p class="text-lg sm:text-xl md:text-2xl font-bold text-white">{{ $siswaDispen }}</p>
-                        </div>
-                        <div class="w-10 h-10 sm:w-12 sm:h-12 bg-orange-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                            <i class="fas fa-clock text-orange-400 text-base sm:text-lg md:text-xl"></i>
-                        </div>
-                    </div>
-                </div>
-                <div class="bg-slate-800/50 backdrop-blur-sm rounded-lg sm:rounded-xl p-3 sm:p-4 md:p-6 border border-slate-700">
-                    <div class="flex items-center justify-between gap-2 sm:gap-3">
-                        <div class="min-w-0">
-                            <p class="text-slate-400 text-xs sm:text-sm">Tanpa Keterangan/Alfa</p>
-                            <p class="text-lg sm:text-xl md:text-2xl font-bold text-white">{{ $siswaAlfa }}</p>
-                        </div>
-                        <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gray-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                            <i class="fas fa-question-circle text-gray-400 text-base sm:text-lg md:text-xl"></i>
-                        </div>
-                    </div>
-                </div>
+                </div> -->
             </div>
 
-            <!-- <div class="bg-slate-800/50 backdrop-blur-sm rounded-xl p-4 md:p-6 border border-slate-700 mb-6">
+            <!-- <div class="bg-white backdrop-blur-sm rounded-xl p-4 md:p-6 border border-slate-400 mb-6">
                 <h3 class="text-base md:text-lg font-semibold text-white mb-2 md:mb-4">Siswa dengan Izin Approved</h3>
                 @if($approvedPermissionsToday->count() > 0)
                     <div class="overflow-x-auto">
@@ -95,7 +113,7 @@
                             </thead>
                             <tbody>
                                 @foreach($approvedPermissionsToday as $permission)
-                                    <tr class="border-b border-slate-700 hover:bg-slate-700/50">
+                                    <tr class="border-b border-slate-400 hover:bg-slate-700/50">
                                         <td class="px-4 py-3">{{ $permission->student->name ?? 'N/A' }}</td>
                                         <td class="px-4 py-3">
                                             <span class="px-2 py-1 text-xs font-medium rounded-full
@@ -117,8 +135,8 @@
                 @endif
             </div> -->
 
-            <div class="bg-slate-800/50 backdrop-blur-sm rounded-xl p-4 md:p-6 border border-slate-700">
-                <h3 class="text-base md:text-lg font-semibold text-white mb-2 md:mb-4">Analytics Overview</h3>
+            <div class="bg-white backdrop-blur-sm rounded-xl p-4 md:p-6 border border-slate-400">
+                <h3 class="text-base md:text-lg font-semibold text-gray-700 mb-2 md:mb-4">Analytics Overview</h3>
                 <div class="h-40 md:h-64">
                     <canvas id="attendanceChart"></canvas>
                 </div>
@@ -174,7 +192,7 @@
                                 x: {
                                     beginAtZero: true,
                                     ticks: {
-                                        color: '#cbd5e1'
+                                        color: '#374151'
                                     },
                                     grid: {
                                         color: '#374151'
@@ -182,7 +200,7 @@
                                 },
                                 y: {
                                     ticks: {
-                                        color: '#cbd5e1'
+                                        color: '#374151'
                                     },
                                     grid: {
                                         color: '#374151'

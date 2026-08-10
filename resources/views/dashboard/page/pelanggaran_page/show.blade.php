@@ -7,12 +7,12 @@
 
 @section('content')
 <div class="content-section mx-auto">
-    <div class="bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 border border-slate-700 mb-6 flex flex-row items-center justify-between">
+    <div class="backdrop-blur-sm rounded-xl px-6 mb-6 flex flex-row items-center justify-between">
         <div class="flex items-center gap-4">
             <i class="fas fa-exclamation-triangle text-4xl text-red-400"></i>
             <div>
-                <h3 class="text-2xl font-semibold text-white">Detail Pelanggaran Siswa</h3>
-                <p class="text-slate-400">Halaman ini digunakan untuk melihat detail daftar pelanggaran siswa — tanggal, jam, status, dan lokasi.</p>
+                <h3 class="text-2xl font-semibold text-black">Detail Pelanggaran Siswa</h3>
+                <p class="text-slate-700">Halaman ini digunakan untuk melihat detail daftar pelanggaran siswa — tanggal, jam, status, dan lokasi.</p>
             </div>
         </div>
         <div>
@@ -20,27 +20,35 @@
         </div>
     </div>
 
-    <div class="bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 border border-slate-700">
+    <div class="bg-white backdrop-blur-sm rounded-xl p-6 border border-gray-300">
         <div class="grid grid-cols-2 gap-6">
             <div>
-                <h5 class="text-gray-300 text-xl font-medium mb-1">Nama</h5>
-                <p class="text-white text-lg">{{ $violation->student->name ?? '-' }}</p>
+                <h5 class="text-black text-xl font-medium mb-1">Nama</h5>
+                <p class="text-slate-700 text-lg">{{ $violation->student->name ?? '-' }}</p>
             </div>
             <div>
-                <h5 class="text-gray-300 text-xl font-medium mb-1">Kelas</h5>
-                <p class="text-white text-lg">{{ $violation->student->classes->first()->name ?? '-' }}</p>
+                <h5 class="text-black text-xl font-medium mb-1">Kelas</h5>
+                <p class="text-slate-700 text-lg">{{ $violation->student->classes->first()->name ?? '-' }}</p>
             </div>
             <div>
-                <h5 class="text-gray-300 text-xl font-medium mb-1">Tanggal</h5>
-                <p class="text-white text-lg">{{ $violation->created_at ? $violation->created_at->format('Y-m-d') : '-' }}</p>
+                <h5 class="text-black text-xl font-medium mb-1">NIS</h5>
+                <p class="text-slate-700 text-lg">{{ $violation->student->studentDetail->nis ?? '-' }}</p>
             </div>
             <div>
-                <h5 class="text-gray-300 text-xl font-medium mb-1">Ketentuan</h5>
-                <p class="text-white text-lg">{{ $violation->rule->name ?? '-' }}</p>
+                <h5 class="text-black text-xl font-medium mb-1">NISN</h5>
+                <p class="text-slate-700 text-lg">{{ $violation->student->studentDetail->nisn ?? '-' }}</p>
             </div>
             <div>
-                <h5 class="text-gray-300 text-xl font-medium mb-1">Deskripsi</h5>
-                <p class="text-white text-lg">
+                <h5 class="text-black text-xl font-medium mb-1">Tanggal</h5>
+                <p class="text-slate-700 text-lg">{{ $violation->created_at ? $violation->created_at->format('Y-m-d') : '-' }}</p>
+            </div>
+            <div>
+                <h5 class="text-black text-xl font-medium mb-1">Ketentuan</h5>
+                <p class="text-slate-700 text-lg">{{ $violation->rule->name ?? '-' }}</p>
+            </div>
+            <div>
+                <h5 class="text-black text-xl font-medium mb-1">Deskripsi</h5>
+                <p class="text-slate-700 text-lg">
                     @if($violation->attendance)
                         Absen pada {{ $violation->attendance->date }} ({{ $violation->attendance->time_in ?? '-' }})
                     @else
@@ -49,17 +57,9 @@
                 </p>
             </div>
             <div>
-                <h5 class="text-gray-300 text-xl font-medium mb-1">Hukuman</h5>
-                <p class="text-white text-lg">{{ $violation->rule->points ?? '-' }} poin</p>
+                <h5 class="text-black text-xl font-medium mb-1">Hukuman</h5>
+                <p class="text-slate-700 text-lg">{{ $violation->rule->points ?? '-' }} poin</p>
             </div>
-        </div>
-        <div class="mt-8 flex gap-4">
-            <button id="btn-benar" class="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded font-semibold">
-                Benar
-            </button>
-            <button id="btn-salah" class="bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded font-semibold">
-                Salah
-            </button>
         </div>
     </div>
 </div>

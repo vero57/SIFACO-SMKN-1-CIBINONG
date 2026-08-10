@@ -84,7 +84,7 @@ class PelanggaranController extends Controller
     public function show($id)
     {
         $user = Auth::user();
-        $violation = \App\Models\ViolationPoint::with(['student.classes', 'rule', 'attendance'])->findOrFail($id);
+        $violation = \App\Models\ViolationPoint::with(['student.classes', 'rule', 'attendance','student.studentDetail'])->findOrFail($id);
 
         // Jika guru, pastikan hanya bisa lihat murid di kelasnya
         if ($user->role && strtolower($user->role->name) === 'guru') {

@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Permission;
 use App\Models\User;
 use App\Models\Attendance;
+use App\Models\ViolationPoint;
 use Carbon\Carbon;
 
 class DashboardController extends Controller
@@ -33,12 +34,16 @@ class DashboardController extends Controller
             $q->where('name', 'Siswa');
         })->count();
 
+
         $siswaSakit = $approvedPermissionsToday->where('type', 'sakit')->count();
         $siswaIzin = $approvedPermissionsToday->where('type', 'izin')->count();
         $siswaDispen = $approvedPermissionsToday->where('type', 'dispen')->count();
+        $izinPending = Permission::where('status', 'pending')->with('student')->count();
 
         // Siswa masuk: hanya siswa yang sudah melakukan presensi hari ini
         $siswaMasuk = Attendance::where('date', $todayString)->count();
+
+        $persentasePresensi = ($siswaMasuk / $totalSiswa);
 
         // Siswa tanpa keterangan/alfa: siswa yang tidak absen dan tidak punya izin/sakit/dispen approved hari ini
         // Ambil ID siswa yang sudah absen hari ini
@@ -59,14 +64,20 @@ class DashboardController extends Controller
             $q->where('name', 'Siswa');
         })->whereNotIn('id', $siswaYangTerakuniIds)->count();
 
+        $pelanggaranTerkini = ViolationPoint::with(['rule', 'student'])->whereDate('created_at', $todayString)->count();
+
         return view('dashboard.dash.index', compact(
             'approvedPermissionsToday',
             'totalSiswa',
             'siswaMasuk',
+            'persentasePresensi',
             'siswaSakit',
             'siswaIzin',
             'siswaDispen',
-            'siswaAlfa'
+            'siswaAlfa',
+            'izinPending',
+            'pelanggaranTerkini',
+            'todayString'
         ));
     }
 }
