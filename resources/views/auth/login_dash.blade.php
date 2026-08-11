@@ -1,4 +1,4 @@
-@extends('landing.layout.app', ['title' => 'Login Dashboard'])
+@extends('landing.layout.reglog', ['title' => 'Login Dashboard'])
 
 @push('style')
 <style>
@@ -7,12 +7,12 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        background: linear-gradient(135deg, #0f172a 0%, #111827 60%, #0f172a 100%);
+        background: linear-gradient(135deg, #C1D5F7 0%, #D5DDED 60%, #D5DDED 100%);
         padding: 2rem;
     }
     .login-card {
         width: 420px;
-        background: rgba(255,255,255,0.04);
+        background: linear-gradient(135deg, #B5C6F5 50%, #D5DDED 100%);
         border-radius: 12px;
         padding: 2rem;
         box-shadow: 0 10px 30px rgba(2,6,23,0.6);
@@ -36,8 +36,8 @@
         font-weight:700;
         font-size:18px;
     }
-    .login-title { color:#e6edf3; font-size:1.25rem; font-weight:700; }
-    .login-desc { color:#9aa4b2; font-size:0.9rem; }
+    .login-title { color:black; font-size:1.25rem; font-weight:700; }
+    .login-desc { color:#393C45; font-size:0.9rem; }
 
     .form-group { margin-bottom:0.75rem; }
     .form-input {
@@ -62,7 +62,7 @@
     }
     .text-error { color:#f87171; font-size:0.875rem; margin-top:0.35rem; }
     .helper-row { display:flex; justify-content:space-between; align-items:center; margin-top:0.5rem; color:#9aa4b2; font-size:0.9rem; }
-    a.link-muted { color:#9aa4b2; text-decoration:underline; text-underline-offset:3px; }
+    a.link-muted { color:#393C45; text-decoration:underline; text-underline-offset:3px; }
 
     .checkbox-toggle { display:inline-flex; align-items:center; gap:0.6rem; cursor:pointer; user-select:none; }
     .checkbox-toggle input[type="checkbox"] { position:absolute; opacity:0; pointer-events:none; width:0; height:0; }
@@ -99,7 +99,7 @@
     .checkbox-toggle input:checked + .checkbox-box::after {
         transform: rotate(40deg) scale(1);
     }
-    .checkbox-label-text { font-weight:500; color:#9aa4b2; }
+    .checkbox-label-text { font-weight:500; color:#393C45; }
 
     .password-toggle {
         position: relative;
@@ -141,7 +141,7 @@
         <form method="POST" action="{{ route('login.dash') }}" novalidate>
             @csrf
             <div class="form-group">
-                <label class="text-slate-300 text-sm">Email</label>
+                <label class="text-gray-500 text-sm">Email</label>
                 <input id="email" name="email" type="email" value="{{ old('email') }}" required autofocus placeholder="you@example.com" class="form-input" />
                 @error('email')
                     <div class="text-error">{{ $message }}</div>
@@ -149,7 +149,7 @@
             </div>
 
             <div class="form-group">
-                <label class="text-slate-300 text-sm">Password</label>
+                <label class="text-gray-500 text-sm">Password</label>
                 <div class="password-toggle">
                     <input id="password" name="password" type="password" required placeholder="••••••••" class="form-input" />
                     <button type="button" class="toggle-password-btn" onclick="togglePassword('password', this)">

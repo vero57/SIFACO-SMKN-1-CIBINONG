@@ -7,12 +7,12 @@
 
 @section('content')
 <div class="content-section">
-    <div class="bg-slate-800/50 flex flex-row items-center justify-between backdrop-blur-sm rounded-xl p-6 border border-slate-700 mb-6">
+    <div class="flex flex-row items-center justify-between backdrop-blur-sm rounded-xl px-6 mb-6">
         <div class="flex items-center gap-4">
             <i class="fas fa-chalkboard-teacher text-4xl text-green-400"></i>
             <div>
-                <h3 class="text-2xl font-semibold text-white">Kelas</h3>
-                <p class="text-slate-400">Daftar Kelas.</p>
+                <h3 class="text-2xl font-semibold">Manajemen Kelas</h3>
+                <p class="text-slate-700">Daftar Kelas.</p>
             </div>
         </div>
         @php
@@ -21,31 +21,41 @@
         @if($role === 'Admin')
         <div>
             <a href="{{ route('dashboard.kelas.create') }}">
-                <button type="button" class="bg-green-600 hover:bg-green-500 text-white px-3 py-2 rounded text-sm">Tambah Kelas</button>
+                <button type="button" class="bg-green-600 hover:bg-green-500 text-white px-3 py-2 rounded text-sm"><i class="fa fa-plus"></i> Tambah Kelas</button>
             </a>
         </div>
         @endif
     </div>
 
-    <div class="bg-slate-800/50 backdrop-blur-sm rounded-xl p-4 border border-slate-700">
-        <div class="overflow-x-auto -mx-4 px-4">
-            <table class="min-w-full table-auto border-collapse">
+    <div class="backdrop-blur-sm rounded-xl p-4 border border-gray-300">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+            <div class="flex items-center gap-3">
+                <label class="text-slate-700 text-sm">Show</label>
+                <select id="kelas-per-page" class="bg-white text-slate-700 border border-gray-300 rounded p-1 my-1 text-sm text-center">
+                    @foreach([10, 25, 50, 100] as $option)
+                        <option value="{{ $option }}" {{ isset($perPage) && $perPage == $option ? 'selected' : '' }}>{{ $option }}</option>
+                    @endforeach
+                </select>
+            </div>
+        </div>
+        <div class="overflow-x-auto -mx-4">
+            <table class="min-w-full table-auto border-collapse border border-gray-300">
                 <thead>
-                    <tr class="text-left text-slate-300 text-sm uppercase tracking-wider">
+                    <tr class="text-left text-slate-700 text-sm uppercase tracking-wider bg-[#ecedf7] border border-gray-300">
                         <th class="px-4 py-3">Kelas</th>
                         <th class="px-4 py-3">Wali Kelas</th>
                         <th class="px-4 py-3 w-[200px]">Action</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-700">
+                <tbody class="divide-y divide-gray-300">
                     @if(isset($classes) && $classes->count())
                         @foreach($classes as $class)
-                            <tr class="hover:bg-slate-800/40">
-                                <td class="px-4 py-3 text-slate-200 text-sm">{{ $class->name }}</td>
-                                <td class="px-4 py-3 text-slate-200 text-sm">
+                            <tr class="hover:bg-[#ecedf7] bg-white">
+                                <td class="px-4 py-3 text-slate-700 text-sm">{{ $class->name }}</td>
+                                <td class="px-4 py-3 text-slate-700 text-sm">
                                     {{ $class->walas ? $class->walas->name : '-' }}
                                 </td>
-                                <td class="px-4 py-3 text-slate-200 text-sm">
+                                <td class="px-4 py-3 text-slate-700 text-sm">
                                     <a href="{{ route('dashboard.kelas.show', $class->id) }}" class="inline-block bg-blue-500 hover:bg-blue-400 text-white px-3 py-1 rounded text-xs font-semibold mr-2">
                                         <i class="fas fa-eye"></i> Detail
                                     </a>
@@ -66,15 +76,15 @@
                         @endforeach
                     @else
                         <tr>
-                            <td colspan="3" class="px-4 py-3 text-slate-400 text-center">Tidak ada data kelas.</td>
+                            <td colspan="3" class="px-4 py-3 text-slate-700 text-center">Tidak ada data kelas.</td>
                         </tr>
                     @endif
                 </tbody>
             </table>
         </div>
         @if(isset($classes) && method_exists($classes, 'links'))
-            <div class="mt-4 flex items-center justify-between text-slate-400 text-sm">
-                <div>Showing <span class="text-white">{{ $classes->firstItem() }}</span> to <span class="text-white">{{ $classes->lastItem() }}</span> of <span class="text-white">{{ $classes->total() }}</span> entries</div>
+            <div class="mt-4 flex flex-col md:flex-row md:items-center md:justify-between text-slate-600 text-sm gap-2">
+                <div>Showing <span class="text-slate-700">{{ $classes->firstItem() }}</span> to <span class="text-slate-700">{{ $classes->lastItem() }}</span> of <span class="text-slate-700">{{ $classes->total() }}</span> entries</div>
                 <div class="text-sm">
                     {{ $classes->links() }}
                 </div>
@@ -87,30 +97,31 @@
 @push('scripts')
 <script>
     @if(session('success'))
-        Swal.fire({
-            icon: 'success',
-            title: 'Berhasil!',
-            text: '{{ session("success") }}',
-            timer: 3000,
-            showConfirmButton: false
+        document.addEventListener('DOMContentLoaded', function() {
+            showSuccess('{{ session("success") }}', 'Berhasil!');
         });
     @endif
 
+    document.addEventListener('DOMContentLoaded', function() {
+        const perPageSelect = document.getElementById('kelas-per-page');
+        if (perPageSelect) {
+            perPageSelect.addEventListener('change', function() {
+                const params = new URLSearchParams(window.location.search);
+                params.set('per_page', this.value);
+                params.delete('page');
+                window.location.search = params.toString();
+            });
+        }
+    });
+
     function confirmDelete(id, className) {
-        Swal.fire({
-            title: 'Yakin ingin menghapus?',
-            text: `Kelas "${className}" akan dihapus secara permanen.`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Ya, Hapus!',
-            cancelButtonText: 'Batal'
-        }).then((result) => {
-            if (result.isConfirmed) {
+        showConfirm(
+            `Kelas "${className}" akan dihapus secara permanen.`,
+            'Yakin ingin menghapus?',
+            function() {
                 document.getElementById('delete-form-' + id).submit();
             }
-        });
+        );
     }
 </script>
 @endpush

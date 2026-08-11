@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Permission;
 use App\Models\User;
+use App\Models\Attendance;
+use App\Models\ViolationPoint;
+use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
@@ -15,9 +18,14 @@ class DashboardController extends Controller
             return redirect()->route('landing.home');
         }
 
-        // Ambil data siswa dengan izin approved
-        $approvedPermissions = Permission::whereIn('type', ['sakit', 'izin', 'dispen'])
+        // Ambil tanggal hari ini
+        $today = Carbon::today();
+        $todayString = $today->toDateString();
+
+        // Ambil data siswa dengan izin approved hari ini
+        $approvedPermissionsToday = Permission::whereIn('type', ['sakit', 'izin', 'dispen'])
             ->where('status', 'approved')
+            ->whereDate('created_at', $todayString)
             ->with('student')
             ->get();
 
@@ -26,24 +34,50 @@ class DashboardController extends Controller
             $q->where('name', 'Siswa');
         })->count();
 
-        $siswaSakit = $approvedPermissions->where('type', 'sakit')->count();
-        $siswaIzin = $approvedPermissions->where('type', 'izin')->count();
-        $siswaDispen = $approvedPermissions->where('type', 'dispen')->count();
 
-        // Siswa masuk: total siswa - (sakit + izin + dispen)
-        $siswaMasuk = $totalSiswa - ($siswaSakit + $siswaIzin + $siswaDispen);
+        $siswaSakit = $approvedPermissionsToday->where('type', 'sakit')->count();
+        $siswaIzin = $approvedPermissionsToday->where('type', 'izin')->count();
+        $siswaDispen = $approvedPermissionsToday->where('type', 'dispen')->count();
+        $izinPending = Permission::where('status', 'pending')->with('student')->count();
 
-        // Siswa tanpa keterangan: mungkin dari attendance, tapi untuk sementara 0
-        $siswaAlfa = 0;
+        // Siswa masuk: hanya siswa yang sudah melakukan presensi hari ini
+        $siswaMasuk = Attendance::where('date', $todayString)->count();
+
+        $persentasePresensi = ($siswaMasuk / $totalSiswa);
+
+        // Siswa tanpa keterangan/alfa: siswa yang tidak absen dan tidak punya izin/sakit/dispen approved hari ini
+        // Ambil ID siswa yang sudah absen hari ini
+        $siswaAbsenIds = Attendance::where('date', $todayString)->pluck('student_id')->toArray();
+
+        // Ambil ID siswa yang punya izin/sakit/dispen approved hari ini
+        $siswaIzinIds = Permission::whereIn('type', ['sakit', 'izin', 'dispen'])
+            ->where('status', 'approved')
+            ->whereDate('created_at', $todayString)
+            ->pluck('student_id')
+            ->toArray();
+
+        // Gabungkan ID siswa yang sudah absen atau punya izin
+        $siswaYangTerakuniIds = array_unique(array_merge($siswaAbsenIds, $siswaIzinIds));
+
+        // Hitung siswa yang belum absen dan tidak punya izin (Alfa)
+        $siswaAlfa = User::whereHas('role', function($q) {
+            $q->where('name', 'Siswa');
+        })->whereNotIn('id', $siswaYangTerakuniIds)->count();
+
+        $pelanggaranTerkini = ViolationPoint::with(['rule', 'student'])->whereDate('created_at', $todayString)->count();
 
         return view('dashboard.dash.index', compact(
-            'approvedPermissions',
+            'approvedPermissionsToday',
             'totalSiswa',
             'siswaMasuk',
+            'persentasePresensi',
             'siswaSakit',
             'siswaIzin',
             'siswaDispen',
-            'siswaAlfa'
+            'siswaAlfa',
+            'izinPending',
+            'pelanggaranTerkini',
+            'todayString'
         ));
     }
 }

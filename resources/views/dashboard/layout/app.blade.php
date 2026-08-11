@@ -6,7 +6,7 @@
     <title>@yield('title', 'Dashboard')</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script defer src="{{ asset('js/custom-alert.js') }}"></script>
     <style>
         * { box-sizing: border-box; }
         html, body {
@@ -39,12 +39,12 @@
     </style>
     @stack('head')
 </head>
-<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 font-sans overflow-hidden">
+<body class="bg-gradient-to-br from-[#F9F9FF] via-slate-50 to-[#F9F9FF] font-sans overflow-hidden">
     <div class="flex h-screen w-screen">
         {{-- Sidebar Overlay for mobile --}}
         <div id="sidebar-overlay" class="fixed inset-0 bg-black/40 z-40 hidden md:hidden" onclick="toggleSidebar(false)"></div>
         {{-- Sidebar --}}
-        <div id="sidebar" class="fixed md:static z-50 md:z-auto top-0 left-0 h-screen w-64 bg-slate-800/50 backdrop-blur-sm border-r border-slate-700 flex flex-col transition-transform duration-300 -translate-x-full md:translate-x-0 overflow-y-auto">
+        <div id="sidebar" class="fixed md:static z-50 md:z-auto top-0 left-0 h-screen w-64 bg-slate-800/50 backdrop-blur-sm border-r border-slate-300 flex flex-col transition-transform duration-300 -translate-x-full md:translate-x-0 overflow-y-auto">
             @include('dashboard.partials.sidebar')
         </div>
         <div class="flex-1 flex flex-col h-screen overflow-hidden">
@@ -99,13 +99,11 @@
                 icon.classList.add('fa-chevron-right');
             }
         });
-
-        // Set SweetAlert default theme to dark
-        Swal.mixin({
-            theme: 'dark'
-        });
     </script>
     @stack('scripts')
     <script src="//unpkg.com/alpinejs" defer></script>
+
+    {{-- Alert Component --}}
+    @include("components.alert")
 </body>
 </html>

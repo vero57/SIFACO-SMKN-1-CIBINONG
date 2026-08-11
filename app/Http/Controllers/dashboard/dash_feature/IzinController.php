@@ -3,30 +3,35 @@
 namespace App\Http\Controllers\dashboard\dash_feature;
 
 use App\Http\Controllers\Controller;
+use App\Exports\PermissionExport;
 use Illuminate\Http\Request;
 use App\Models\Permission;
-use Dompdf\Dompdf;
+use Maatwebsite\Excel\Facades\Excel;
 
 class IzinController extends Controller
 {
     public function index(Request $request)
     {
-        // Check if it's an AJAX request
-        if ($request->ajax() || $request->wantsJson()) {
-            return $this->searchAjax($request);
+        $search = $request->input('search');
+        $perPage = $request->input('per_page', 10);
+        $allowedPerPage = [10, 25, 50, 100];
+        if (!in_array((int) $perPage, $allowedPerPage, true)) {
+            $perPage = 10;
         }
 
-        $search = $request->input('search');
         $permissions = Permission::with(['student'])
             ->when($search, function ($q) use ($search) {
                 $q->whereHas('student', function ($sq) use ($search) {
                     $sq->where('name', 'like', '%' . $search . '%');
                 });
             })
-            ->paginate(10)
-            ->appends(['search' => $search]);
+            ->paginate($perPage)
+            ->appends([
+                'search' => $search,
+                'per_page' => $perPage,
+            ]);
 
-        return view('dashboard.page.izin_page.index', compact('permissions', 'search'));
+        return view('dashboard.page.izin_page.index', compact('permissions', 'search', 'perPage'));
     }
 
     /**
@@ -51,8 +56,10 @@ class IzinController extends Controller
 
     public function show($id)
     {
-        $permission = Permission::with(['student'])->findOrFail($id);
-        return view('dashboard.page.izin_page.show', compact('permission'));
+        $permission = Permission::with(['student.classes', 'student.studentDetail'])->findOrFail($id);
+        $studentClass = $permission->student ? $permission->student->classes->first() : null;
+
+        return view('dashboard.page.izin_page.show', compact('permission', 'studentClass'));
     }
 
     public function updateStatus(Request $request, $id)
@@ -67,18 +74,10 @@ class IzinController extends Controller
         return redirect()->back()->with('success', 'Status izin berhasil diupdate.');
     }
 
-    public function exportPdf()
+    public function exportExcel()
     {
         $permissions = Permission::with(['student'])->get();
 
-        $dompdf = new Dompdf();
-        $html = view('dashboard.page.izin_page.pdf', compact('permissions'))->render();
-        $dompdf->loadHtml($html);
-        $dompdf->render();
-
-        return response($dompdf->output(), 200, [
-            'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'attachment; filename="daftar_izin_siswa.pdf"'
-        ]);
+        return Excel::download(new PermissionExport($permissions), 'daftar_izin_siswa.xlsx');
     }
 }

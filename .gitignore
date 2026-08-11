@@ -22,3 +22,8 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+/graphify-out
+/.agents
+terms.md
+design.md
+IMPLEMENTATION_NOTES.md
