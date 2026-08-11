@@ -7,24 +7,24 @@
 
 @section('content')
 <div class="content-section">
-    <div class="bg-slate-800/50 flex flex-row items-center justify-between backdrop-blur-sm rounded-xl p-6 border border-slate-700">
+    <div class="flex flex-row items-center justify-between backdrop-blur-sm rounded-xl px-6">
         <div class="flex items-center gap-4">
             <i class="fas fa-users text-4xl text-green-400"></i>
             <div>
-                <h3 class="text-2xl font-semibold text-white">Presensi Siswa</h3>
-                <p class="text-slate-400">Daftar rekaman kehadiran siswa — tanggal, jam, status, dan lokasi.</p>
+                <h3 class="text-2xl font-semibold text-black">Presensi Siswa</h3>
+                <p class="text-slate-700">Daftar rekaman kehadiran siswa — tanggal, jam, status, dan lokasi.</p>
             </div>
         </div>
         <div class="flex items-center">
-            <a href="{{ route('dashboard.absensi.exportExcel') }}" class="bg-green-600 hover:bg-green-500 text-white px-3 py-2 rounded text-sm">Ekspor Excel</a>
+            <a href="{{ route('dashboard.absensi.exportExcel') }}" class="bg-green-600 hover:bg-green-500 text-white px-3 py-2 rounded text-sm"><i class="fa fa-file-download"></i> Ekspor Excel</a>
         </div>
     </div>
 
-    <div class="mt-6 bg-slate-800/50 backdrop-blur-sm rounded-xl p-4 border border-slate-700">
+    <div class="mt-6 backdrop-blur-sm rounded-xl p-4 border border-gray-300">
         <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-4">
             <div class="flex items-center gap-3">
-                <label class="text-slate-300 text-sm">Show</label>
-                <select class="bg-slate-900 text-slate-200 border border-slate-700 rounded px-2 py-1 text-sm">
+                <label class="text-slate-700 text-sm">Show</label>
+                <select class="bg-white text-slate-700 border border-gray-300 rounded px-2 py-1 text-sm">
                     <option>10</option>
                     <option>25</option>
                     <option>50</option>
@@ -32,33 +32,33 @@
             </div>
 
             <form class="flex flex-wrap items-center gap-3" id="absensi-search-form">
-                <input type="search" id="absensi-search-input" name="search" placeholder="Cari nama/NIS/NISN/kelas" value="{{ request('search', $search ?? '') }}" class="bg-slate-900 text-slate-200 border border-slate-700 rounded px-3 py-2 text-sm" />
+                <input type="search" id="absensi-search-input" name="search" placeholder="Cari nama/NIS/NISN/kelas" value="{{ request('search', $search ?? '') }}" class="bg-white text-slate-700 border border-gray-300 rounded px-3 py-2 text-sm" />
 
-                <select name="kelas" id="absensi-kelas-filter" class="bg-slate-900 text-slate-200 border border-slate-700 rounded px-2 py-2 text-sm">
+                <select name="kelas" id="absensi-kelas-filter" class="bg-white text-slate-700 border border-gray-300 rounded px-2 py-2 text-sm">
                     <option value="">Semua Kelas</option>
                     @foreach($kelasList as $kelas)
                         <option value="{{ $kelas->id }}" {{ (request('kelas', $kelas_id ?? '') == $kelas->id) ? 'selected' : '' }}>{{ $kelas->name }}</option>
                     @endforeach
                 </select>
 
-                <select name="status" id="absensi-status-filter" class="bg-slate-900 text-slate-200 border border-slate-700 rounded px-2 py-2 text-sm">
+                <select name="status" id="absensi-status-filter" class="bg-white text-slate-700 border border-gray-300 rounded px-2 py-2 text-sm">
                     <option value="">Semua Status</option>
                     @foreach($statusList as $status)
                         <option value="{{ $status->id }}" {{ (request('status', $status_id ?? '') == $status->id) ? 'selected' : '' }}>{{ $status->name }}</option>
                     @endforeach
                 </select>
 
-                <input type="date" id="absensi-tanggal-filter" name="tanggal" value="{{ request('tanggal', $tanggal ?? '') }}" class="bg-slate-900 text-slate-200 border border-slate-700 rounded px-2 py-2 text-sm" />
+                <input type="date" id="absensi-tanggal-filter" name="tanggal" value="{{ request('tanggal', $tanggal ?? '') }}" class="bg-white text-slate-700 border border-gray-300 rounded px-2 py-2 text-sm" />
 
                 <button type="button" id="absensi-search-btn" class="bg-green-600 hover:bg-green-500 text-white px-3 py-2 rounded text-sm">Filter</button>
                 <a href="{{ route('dashboard.absensi') }}" class="bg-slate-700 hover:bg-slate-600 text-white px-3 py-2 rounded text-sm">Reset</a>
             </form>
         </div>
 
-        <div class="overflow-x-auto -mx-4 px-4">
-            <table class="min-w-full table-auto border-collapse">
+        <div class="overflow-x-auto -mx-4">
+            <table class="min-w-full table-auto border-collapse border border-gray-300">
                 <thead>
-                    <tr class="text-left text-slate-300 text-sm uppercase tracking-wider">
+                    <tr class="text-left text-slate-700 text-sm uppercase tracking-wider bg-[#ecedf7]">
                         <th class="px-4 py-3">Nama Siswa</th>
                         <th class="px-4 py-3">Kelas Siswa</th>
                         <th class="px-4 py-3">Tanggal</th>
@@ -69,32 +69,32 @@
                         <th class="px-4 py-3">Action</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-700" id="absensi-table-body">
+                <tbody class="divide-y divide-gray-300" id="absensi-table-body">
                     @if(isset($attendances) && $attendances->count())
                         @foreach($attendances as $attendance)
-                            <tr class="hover:bg-slate-800/40">
-                                <td class="px-4 py-3 text-slate-200 text-sm">
+                            <tr class="hover:bg-[#ecedf7] bg-white">
+                                <td class="px-4 py-3 text-slate-700 text-sm">
                                     {{ $attendance->student->name ?? '-' }}
                                 </td>
-                                <td class="px-4 py-3 text-slate-200 text-sm">
+                                <td class="px-4 py-3 text-slate-700 text-sm">
                                     {{ $attendance->student && $attendance->student->classes->count() ? $attendance->student->classes->pluck('name')->join(', ') : '-' }}
                                 </td>
-                                <td class="px-4 py-3 text-slate-200 text-sm">{{ $attendance->date }}</td>
-                                <td class="px-4 py-3 text-slate-200 text-sm">{{ $attendance->time_in ?? '-' }}</td>
-                                <td class="px-4 py-3 text-slate-200 text-sm">{{ $attendance->time_out ?? '-' }}</td>
+                                <td class="px-4 py-3 text-slate-700 text-sm">{{ $attendance->date }}</td>
+                                <td class="px-4 py-3 text-slate-700 text-sm">{{ $attendance->time_in ?? '-' }}</td>
+                                <td class="px-4 py-3 text-slate-700 text-sm">{{ $attendance->time_out ?? '-' }}</td>
                                 <td class="px-4 py-3">
-                                    <span class="inline-block px-3 py-1 text-xs font-medium rounded bg-slate-600">
+                                    <span class="inline-block px-3 py-1 text-xs font-medium rounded bg-slate-300">
                                         {{ $attendance->status->name ?? '-' }}
                                     </span>
                                 </td>
-                                <td class="px-4 py-3 text-slate-200 text-sm">
+                                <td class="px-4 py-3 text-slate-700 text-sm">
                                     @if($attendance->photo)
-                                        <img src="{{ asset($attendance->photo) }}" alt="photo" class="w-12 h-12 rounded-md object-cover border border-slate-700 cursor-pointer preview-photo" data-photo="{{ asset($attendance->photo) }}">
+                                        <img src="{{ asset($attendance->photo) }}" alt="photo" class="w-12 h-12 rounded-md object-cover border border-gray-300 cursor-pointer preview-photo" data-photo="{{ asset($attendance->photo) }}">
                                     @else
                                         <span class="text-slate-400">-</span>
                                     @endif
                                 </td>
-                                <td class="px-4 py-3 text-slate-200 text-sm">
+                                <td class="px-4 py-3 text-slate-700 text-sm">
                                     <a href="{{ route('dashboard.absensi.show', $attendance->id) }}" class="inline-block bg-blue-500 hover:bg-blue-400 text-white px-3 py-1 rounded text-xs font-semibold mr-2">
                                         <i class="fas fa-eye"></i> Detail
                                     </a>
@@ -110,9 +110,9 @@
             </table>
         </div>
 
-        <div class="mt-4 flex items-center justify-between text-slate-400 text-sm">
+        <div class="mt-4 flex items-center justify-between text-slate-500 text-sm">
             <div>
-                Showing <span class="text-white">{{ $attendances->firstItem() }}</span> to <span class="text-white">{{ $attendances->lastItem() }}</span> of <span class="text-white">{{ $attendances->total() }}</span> entries
+                Showing <span class="text-slate-700">{{ $attendances->firstItem() }}</span> to <span class="text-slate-700">{{ $attendances->lastItem() }}</span> of <span class="text-slate-700">{{ $attendances->total() }}</span> entries
             </div>
             @if(isset($attendances) && method_exists($attendances, 'links'))
                 <div class="text-sm">
@@ -226,23 +226,23 @@
                 : '-';
 
             const photoHtml = attendance.photo
-                ? `<img src="${attendance.photo}" alt="photo" class="w-12 h-12 rounded-md object-cover border border-slate-700 cursor-pointer preview-photo" data-photo="${attendance.photo}">`
+                ? `<img src="${attendance.photo}" alt="photo" class="w-12 h-12 rounded-md object-cover border border-gray-300 cursor-pointer preview-photo" data-photo="${attendance.photo}">`
                 : `<span class="text-slate-400">-</span>`;
 
             const row = `
                 <tr class="hover:bg-slate-800/40">
-                    <td class="px-4 py-3 text-slate-200 text-sm">${student.name || '-'}</td>
-                    <td class="px-4 py-3 text-slate-200 text-sm">${className}</td>
-                    <td class="px-4 py-3 text-slate-200 text-sm">${attendance.date || '-'}</td>
-                    <td class="px-4 py-3 text-slate-200 text-sm">${attendance.time_in || '-'}</td>
-                    <td class="px-4 py-3 text-slate-200 text-sm">${attendance.time_out || '-'}</td>
+                    <td class="px-4 py-3 text-slate-700 text-sm">${student.name || '-'}</td>
+                    <td class="px-4 py-3 text-slate-700 text-sm">${className}</td>
+                    <td class="px-4 py-3 text-slate-700 text-sm">${attendance.date || '-'}</td>
+                    <td class="px-4 py-3 text-slate-700 text-sm">${attendance.time_in || '-'}</td>
+                    <td class="px-4 py-3 text-slate-700 text-sm">${attendance.time_out || '-'}</td>
                     <td class="px-4 py-3">
                         <span class="inline-block px-3 py-1 text-xs font-medium rounded bg-slate-600">
                             ${attendance.status?.name || '-'}
                         </span>
                     </td>
-                    <td class="px-4 py-3 text-slate-200 text-sm">${photoHtml}</td>
-                    <td class="px-4 py-3 text-slate-200 text-sm">
+                    <td class="px-4 py-3 text-slate-700 text-sm">${photoHtml}</td>
+                    <td class="px-4 py-3 text-slate-700 text-sm">
                         <a href="/dashboard/absensi/${attendance.id}" class="inline-block bg-blue-500 hover:bg-blue-400 text-white px-3 py-1 rounded text-xs font-semibold mr-2">
                             <i class="fas fa-eye"></i> Detail
                         </a>

@@ -2,12 +2,12 @@
 
 @section('content')
 <div class="content-section mx-auto">
-    <div class="bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 border border-slate-700 mb-6 flex flex-row items-center justify-between">
+    <div class="backdrop-blur-sm rounded-xl px-6 mb-6 flex flex-row items-center justify-between">
         <div class="flex items-center gap-4">
-            <i class="fas fa-chalkboard-teacher text-4xl text-green-400"></i>
+            <i class="fas fa-chalkboard-teacher text-4xl text-green-600"></i>
             <div>
-                <h3 class="text-2xl font-semibold text-white">Detail Kelas</h3>
-                <p class="text-slate-400">Halaman ini digunakan untuk melihat detail kelas dan siswa di dalamnya.</p>
+                <h3 class="text-2xl font-semibold text-black">Detail Kelas</h3>
+                <p class="text-slate-700">Halaman ini digunakan untuk melihat detail kelas dan siswa di dalamnya.</p>
             </div>
         </div>
         <div>
@@ -19,12 +19,12 @@
         </div>
     </div>
 
-    <div class="bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 border border-slate-700 mb-6">
+    <div class="bg-white backdrop-blur-sm rounded-xl p-6 border border-gray-300 mb-6">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
-                <h5 class="text-gray-300 text-xl font-medium mb-1">Nama Kelas</h5>
+                <h5 class="text-black text-xl font-medium mb-1">Nama Kelas</h5>
                 <div class="flex items-center gap-2">
-                    <p class="text-white text-lg">{{ $class->name }}</p>
+                    <p class="text-slate-800 text-lg">{{ $class->name }}</p>
                     <button
                         type="button"
                         onclick="document.getElementById('modalEditNamaKelas').classList.remove('hidden')"
@@ -35,13 +35,13 @@
                     </button>
                 </div>
                 @if(session('success_nama_kelas'))
-                    <div class="text-green-400 mt-2 text-sm">{{ session('success_nama_kelas') }}</div>
+                    <div class="text-green-600 mt-2 text-sm">{{ session('success_nama_kelas') }}</div>
                 @endif
             </div>
             <div>
-                <h5 class="text-gray-300 text-xl font-medium mb-1">Wali Kelas</h5>
+                <h5 class="text-black text-xl font-medium mb-1">Wali Kelas</h5>
                 <div>
-                    <span class="text-white text-lg block">
+                    <span class="text-slate-800 text-lg block">
                         {{ $class->walas ? $class->walas->name : '-' }}
                     </span>
                     <button
@@ -53,15 +53,15 @@
                     </button>
                 </div>
                 @if(session('success_walas'))
-                    <div class="text-green-400 mt-2 text-sm">{{ session('success_walas') }}</div>
+                    <div class="text-green-600 mt-2 text-sm">{{ session('success_walas') }}</div>
                 @endif
             </div>
             <div>
-                <h5 class="text-gray-300 text-xl font-medium mb-1">Jadwal</h5>
+                <h5 class="text-black text-xl font-medium mb-1">Jadwal</h5>
                 @php
                     $schedule = $class->attendanceSchedule ?? null;
                 @endphp
-                <span class="text-white text-lg block">
+                <span class="text-slate-800 text-lg block">
                     @if($schedule)
                         @if(
                             $schedule->start_time_in == '05:00:00' &&
@@ -92,18 +92,18 @@
                     <i class="fas fa-clock mr-1"></i> Ubah Jadwal
                 </button>
                 @if(session('success_jadwal'))
-                    <div class="text-green-400 mt-2 text-sm">{{ session('success_jadwal') }}</div>
+                    <div class="text-green-600 mt-2 text-sm">{{ session('success_jadwal') }}</div>
                 @endif
             </div>
         </div>
     </div>
 
-    <div class="bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 border border-slate-700">
+    <div class="bg-white backdrop-blur-sm rounded-xl p-6 border border-gray-300">
         <div class="flex items-center justify-between mb-4">
             <div>
-                <h4 class="text-xl text-white font-semibold">Daftar Siswa Kelas</h4>
-                <span class="text-slate-400 text-sm mt-1 block">
-                    Jumlah siswa: <span class="text-white font-bold">{{ $class->students->count() }}</span>
+                <h4 class="text-xl text-black font-semibold">Daftar Siswa Kelas</h4>
+                <span class="text-slate-700 text-sm mt-1 block">
+                    Jumlah siswa: <span class="text-black font-bold">{{ $class->students->count() }}</span>
                 </span>
             </div>
             <div class="flex gap-2">
@@ -124,27 +124,27 @@
             </div>
         </div>
         @if(session('success_siswa'))
-            <div class="text-green-400 mb-4 text-sm">{{ session('success_siswa') }}</div>
+            <div class="text-green-600 mb-4 text-sm">{{ session('success_siswa') }}</div>
         @endif
-        <div class="overflow-x-auto -mx-4 px-4">
-            <table class="min-w-full table-auto border-collapse">
+        <div class="overflow-x-auto -mx-4">
+            <table class="min-w-full table-auto border-collapse border border-gray-300">
                 <thead>
-                    <tr class="text-left text-slate-300 text-sm uppercase tracking-wider">
+                    <tr class="text-left text-black text-sm uppercase tracking-wider bg-[#ecedf7]">
                         <th class="px-4 py-3">Nama</th>
                         <th class="px-4 py-3">Email</th>
                         <th class="px-4 py-3">NIS</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-700">
+                <tbody class="divide-y divide-gray-300">
                     @forelse($class->students as $student)
-                        <tr class="hover:bg-slate-800/40">
-                            <td class="px-4 py-3 text-slate-200 text-sm">{{ $student->name }}</td>
-                            <td class="px-4 py-3 text-slate-200 text-sm">{{ $student->email ?? '-' }}</td>
-                            <td class="px-4 py-3 text-slate-200 text-sm">{{ $student->studentDetail->nis ?? '-' }}</td>
+                        <tr class="hover:bg-[#ecedf7]">
+                            <td class="px-4 py-3 text-slate-700 text-sm">{{ $student->name }}</td>
+                            <td class="px-4 py-3 text-slate-700 text-sm">{{ $student->email ?? '-' }}</td>
+                            <td class="px-4 py-3 text-slate-700 text-sm">{{ $student->studentDetail->nis ?? '-' }}</td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="3" class="px-4 py-3 text-slate-400 text-center">Tidak ada siswa di kelas ini.</td>
+                            <td colspan="3" class="px-4 py-3 text-slate-800 text-center">Tidak ada siswa di kelas ini.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -161,7 +161,7 @@
         </button>
         <h3 class="text-lg font-semibold mb-4 text-gray-800">Pilih Wali Kelas</h3>
         @if(session('success_walas'))
-            <div class="text-green-400 mb-2 text-sm">{{ session('success_walas') }}</div>
+            <div class="text-green-600 mb-2 text-sm">{{ session('success_walas') }}</div>
         @endif
         <form action="{{ route('dashboard.kelas.updateWalas', $class->id) }}" method="POST">
             @csrf
@@ -278,7 +278,7 @@
         </button>
         <h3 class="text-lg font-semibold mb-4 text-gray-800">Ubah Jadwal Kelas</h3>
         @if(session('success_jadwal'))
-            <div class="text-green-400 mb-2 text-sm">{{ session('success_jadwal') }}</div>
+            <div class="text-green-600 mb-2 text-sm">{{ session('success_jadwal') }}</div>
         @endif
         <form action="{{ route('dashboard.kelas.updateSchedule', $class->id) }}" method="POST">
             @csrf
@@ -316,7 +316,7 @@
         </button>
         <h3 class="text-lg font-semibold mb-4 text-gray-800">Ubah Nama Kelas</h3>
         @if(session('success_nama_kelas'))
-            <div class="text-green-400 mb-2 text-sm">{{ session('success_nama_kelas') }}</div>
+            <div class="text-green-600 mb-2 text-sm">{{ session('success_nama_kelas') }}</div>
         @endif
         <form action="{{ route('dashboard.kelas.updateName', $class->id) }}" method="POST">
             @csrf

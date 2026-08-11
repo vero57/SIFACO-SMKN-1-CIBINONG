@@ -39,12 +39,12 @@
     </style>
     @stack('head')
 </head>
-<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 font-sans overflow-hidden">
+<body class="bg-gradient-to-br from-[#F9F9FF] via-slate-50 to-[#F9F9FF] font-sans overflow-hidden">
     <div class="flex h-screen w-screen">
         {{-- Sidebar Overlay for mobile --}}
         <div id="sidebar-overlay" class="fixed inset-0 bg-black/40 z-40 hidden md:hidden" onclick="toggleSidebar(false)"></div>
         {{-- Sidebar --}}
-        <div id="sidebar" class="fixed md:static z-50 md:z-auto top-0 left-0 h-screen w-64 bg-slate-800/50 backdrop-blur-sm border-r border-slate-700 flex flex-col transition-transform duration-300 -translate-x-full md:translate-x-0 overflow-y-auto">
+        <div id="sidebar" class="fixed md:static z-50 md:z-auto top-0 left-0 h-screen w-64 bg-slate-800/50 backdrop-blur-sm border-r border-slate-300 flex flex-col transition-transform duration-300 -translate-x-full md:translate-x-0 overflow-y-auto">
             @include('dashboard.partials.sidebar')
         </div>
         <div class="flex-1 flex flex-col h-screen overflow-hidden">
@@ -102,7 +102,7 @@
     </script>
     @stack('scripts')
     <script src="//unpkg.com/alpinejs" defer></script>
-    
+
     {{-- Alert Component --}}
     @include("components.alert")
 </body>

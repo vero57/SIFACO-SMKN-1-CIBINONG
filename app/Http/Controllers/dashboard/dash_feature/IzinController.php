@@ -12,22 +12,26 @@ class IzinController extends Controller
 {
     public function index(Request $request)
     {
-        // Check if it's an AJAX request
-        if ($request->ajax() || $request->wantsJson()) {
-            return $this->searchAjax($request);
+        $search = $request->input('search');
+        $perPage = $request->input('per_page', 10);
+        $allowedPerPage = [10, 25, 50, 100];
+        if (!in_array((int) $perPage, $allowedPerPage, true)) {
+            $perPage = 10;
         }
 
-        $search = $request->input('search');
         $permissions = Permission::with(['student'])
             ->when($search, function ($q) use ($search) {
                 $q->whereHas('student', function ($sq) use ($search) {
                     $sq->where('name', 'like', '%' . $search . '%');
                 });
             })
-            ->paginate(10)
-            ->appends(['search' => $search]);
+            ->paginate($perPage)
+            ->appends([
+                'search' => $search,
+                'per_page' => $perPage,
+            ]);
 
-        return view('dashboard.page.izin_page.index', compact('permissions', 'search'));
+        return view('dashboard.page.izin_page.index', compact('permissions', 'search', 'perPage'));
     }
 
     /**
@@ -52,8 +56,10 @@ class IzinController extends Controller
 
     public function show($id)
     {
-        $permission = Permission::with(['student'])->findOrFail($id);
-        return view('dashboard.page.izin_page.show', compact('permission'));
+        $permission = Permission::with(['student.classes', 'student.studentDetail'])->findOrFail($id);
+        $studentClass = $permission->student ? $permission->student->classes->first() : null;
+
+        return view('dashboard.page.izin_page.show', compact('permission', 'studentClass'));
     }
 
     public function updateStatus(Request $request, $id)

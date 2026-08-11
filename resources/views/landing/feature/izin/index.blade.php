@@ -71,38 +71,47 @@
 @endpush
 
 @section("content")
-    <section class="min-h-screen text-slate-200">
-        <div class="">
-            @include("landing.partials.header")
-            @if(session('success'))
-                <script>
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Berhasil!',
-                        text: '{{ session("success") }}',
-                        timer: 3000,
-                        showConfirmButton: false
-                    });
-                </script>
-            @endif
-            @if($errors->any())
-                <script>
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error!',
-                        html: '<ul>@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>',
-                    });
-                </script>
-            @endif
-            <div
-                class="text-center mb-1 lg:mb-16 max-sm:mt-6 max-sm:py-4 max-sm:px-4 max-sm:mx-4 pb-1 max-sm:bg-white rounded-xl max-sm:border max-sm:border-[#e5e7eb] max-sm:shadow-lg">
-                <h1 class="text-xl lg:text-[32px] font-semibold text-[#0b1c30] mb-2 lg:pt-16 max-sm:text-start">Pengajuan
-                    Izin Siswa</h1>
-                <p class="max-sm:text-sm text-gray-600 max-sm:text-start">Silakan lengkapi formulir di bawah untuk
-                    mengajukan izin ketidakhadiran.</p>
+<section class="min-h-screen text-slate-200">
+    <div class="">
+        @include("landing.partials.header")
+
+        <div id="customAlertModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40 backdrop-blur-sm px-4 py-6">
+            <div class="w-full max-w-lg rounded-3xl bg-white p-6 shadow-2xl shadow-black/20 text-slate-900">
+                <div class="flex flex-col items-center gap-4 text-center">
+                    <div id="customAlertIcon" class="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
+                        <span class="material-symbols-outlined text-4xl">check_circle</span>
+                    </div>
+                    <div>
+                        <h2 id="customAlertTitle" class="text-xl font-semibold"></h2>
+                        <p id="customAlertMessage" class="mt-2 text-slate-600"></p>
+                    </div>
+                    <button id="customAlertClose" type="button" class="mt-4 inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white transition hover:bg-primary-container">
+                        Tutup
+                    </button>
+                </div>
             </div>
-            <form action="{{ route('feature.izin.store') }}" method="POST" enctype="multipart/form-data" class="space-y-5">
-                <div class="izin-container lg:flex-col lg:items-center">
+        </div>
+
+        @if(session('success'))
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    openCustomAlert('success', 'Berhasil!', @json(session('success')), 3000);
+                });
+            </script>
+        @endif
+        @if($errors->any())
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    openCustomAlert('error', 'Error!', @json(implode('<br/>', $errors->all())), 0);
+                });
+            </script>
+        @endif
+        <div class="text-center mb-1 lg:mb-16 max-sm:mt-6 max-sm:py-4 max-sm:px-4 max-sm:mx-4 pb-1 max-sm:bg-white rounded-xl max-sm:border max-sm:border-[#e5e7eb] max-sm:shadow-lg">
+            <h1 class="text-xl lg:text-[32px] font-semibold text-[#0b1c30] mb-2 lg:pt-16 max-sm:text-start">Pengajuan Izin Siswa</h1>
+            <p class="max-sm:text-sm text-gray-600 max-sm:text-start">Silakan lengkapi formulir di bawah untuk mengajukan izin ketidakhadiran.</p>
+        </div>
+        <form action="{{ route('feature.izin.store') }}" method="POST" enctype="multipart/form-data" class="space-y-5">
+            <div class="izin-container lg:flex-col lg:items-center">
                     @csrf
                     <!-- Kontainer Atas -->
                     <div class="izin flex items-center justify-center">
@@ -180,14 +189,64 @@
         @include("landing.partials.nav")
     </section>
 
-    @push("script")
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                const dropZone = document.getElementById('drop-zone');
-                const fileInput = document.getElementById('file-input');
-                const dropText = document.getElementById('drop-text');
-                const btnBerikutnya = document.getElementById('btn-berikutnya');
-                const form = document.querySelector('form');
+@push("script")
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('file-input');
+    const dropText = document.getElementById('drop-text');
+    const btnBerikutnya = document.getElementById('btn-berikutnya');
+    const form = document.querySelector('form');
+    const customAlertModal = document.getElementById('customAlertModal');
+    const customAlertIcon = document.getElementById('customAlertIcon');
+    const customAlertTitle = document.getElementById('customAlertTitle');
+    const customAlertMessage = document.getElementById('customAlertMessage');
+    const customAlertClose = document.getElementById('customAlertClose');
+    let customAlertTimeout = null;
+
+    function openCustomAlert(type, title, message, duration = 0) {
+        if (!customAlertModal) return;
+
+        if (customAlertTimeout) {
+            clearTimeout(customAlertTimeout);
+            customAlertTimeout = null;
+        }
+
+        customAlertTitle.textContent = title;
+        customAlertMessage.innerHTML = message;
+
+        if (type === 'success') {
+            customAlertIcon.className = 'flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-emerald-600';
+            customAlertIcon.innerHTML = '<span class="material-symbols-outlined text-4xl">check_circle</span>';
+        } else if (type === 'error') {
+            customAlertIcon.className = 'flex h-16 w-16 items-center justify-center rounded-full bg-rose-100 text-rose-600';
+            customAlertIcon.innerHTML = '<span class="material-symbols-outlined text-4xl">error</span>';
+        } else {
+            customAlertIcon.className = 'flex h-16 w-16 items-center justify-center rounded-full bg-slate-100 text-slate-700';
+            customAlertIcon.innerHTML = '<span class="material-symbols-outlined text-4xl">info</span>';
+        }
+
+        customAlertModal.classList.remove('hidden');
+        customAlertModal.classList.add('flex');
+
+        if (duration > 0) {
+            customAlertTimeout = setTimeout(closeCustomAlert, duration);
+        }
+    }
+
+    function closeCustomAlert() {
+        if (!customAlertModal) return;
+        customAlertModal.classList.add('hidden');
+        customAlertModal.classList.remove('flex');
+        if (customAlertTimeout) {
+            clearTimeout(customAlertTimeout);
+            customAlertTimeout = null;
+        }
+    }
+
+    if (customAlertClose) {
+        customAlertClose.addEventListener('click', closeCustomAlert);
+    }
 
                 // Klik untuk pilih file
                 dropZone.addEventListener('click', () => fileInput.click());
@@ -226,45 +285,45 @@
                     }
                 });
 
-                // Tombol Berikutnya: simpan data ke sessionStorage dan redirect
-                btnBerikutnya.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    // Validasi manual
-                    const parentName = document.getElementById('parent_name').value.trim();
-                    const type = document.getElementById('type').value;
-                    const description = document.getElementById('description').value.trim();
-                    if (!parentName || !type || !description || fileInput.files.length === 0) {
-                        Swal.fire({ icon: 'error', title: 'Lengkapi Data!', text: 'Semua field dan file wajib diisi.' });
-                        return;
-                    }
-                    // Simpan data ke sessionStorage
-                    const izinData = {
-                        student_id: document.querySelector('input[name="student_id"]').value,
-                        parent_name: parentName,
-                        type: type,
-                        description: description
-                    };
-                    sessionStorage.setItem('izinData', JSON.stringify(izinData));
-                    // Simpan file ke sessionStorage (support multiple file)
-                    const filesArr = [];
-                    const fileNames = [];
-                    let filesLoaded = 0;
-                    for (let i = 0; i < fileInput.files.length; i++) {
-                        const reader = new FileReader();
-                        reader.onload = function (evt) {
-                            filesArr[i] = evt.target.result;
-                            fileNames[i] = fileInput.files[i].name;
-                            filesLoaded++;
-                            if (filesLoaded === fileInput.files.length) {
-                                sessionStorage.setItem('izinFiles', JSON.stringify(filesArr));
-                                sessionStorage.setItem('izinFileNames', JSON.stringify(fileNames));
-                                window.location.href = '/izin/face';
-                            }
-                        };
-                        reader.readAsDataURL(fileInput.files[i]);
-                    }
-                });
-            });
-        </script>
-    @endpush
+    // Tombol Berikutnya: simpan data ke sessionStorage dan redirect
+    btnBerikutnya.addEventListener('click', function(e) {
+        e.preventDefault();
+        // Validasi manual
+        const parentName = document.getElementById('parent_name').value.trim();
+        const type = document.getElementById('type').value;
+        const description = document.getElementById('description').value.trim();
+        if (!parentName || !type || !description || fileInput.files.length === 0) {
+            openCustomAlert('error', 'Lengkapi Data!', 'Semua field dan file wajib diisi.', 0);
+            return;
+        }
+        // Simpan data ke sessionStorage
+        const izinData = {
+            student_id: document.querySelector('input[name="student_id"]').value,
+            parent_name: parentName,
+            type: type,
+            description: description
+        };
+        sessionStorage.setItem('izinData', JSON.stringify(izinData));
+        // Simpan file ke sessionStorage (support multiple file)
+        const filesArr = [];
+        const fileNames = [];
+        let filesLoaded = 0;
+        for (let i = 0; i < fileInput.files.length; i++) {
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                filesArr[i] = evt.target.result;
+                fileNames[i] = fileInput.files[i].name;
+                filesLoaded++;
+                if (filesLoaded === fileInput.files.length) {
+                    sessionStorage.setItem('izinFiles', JSON.stringify(filesArr));
+                    sessionStorage.setItem('izinFileNames', JSON.stringify(fileNames));
+                    window.location.href = '/izin/face';
+                }
+            };
+            reader.readAsDataURL(fileInput.files[i]);
+        }
+    });
+});
+</script>
+@endpush
 @endsection

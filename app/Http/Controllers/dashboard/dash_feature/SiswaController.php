@@ -112,8 +112,10 @@ class SiswaController extends Controller
 
     public function show($user_id)
     {
-        $user = User::findOrFail($user_id);
-        return view('dashboard.page.siswa_page.show', compact('user'));
+        $user = User::with(['studentDetail', 'classes'])->findOrFail($user_id);
+        $studentClass = $user->classes->first();
+
+        return view('dashboard.page.siswa_page.show', compact('user', 'studentClass'));
     }
 
     public function editDetail($user_id)
