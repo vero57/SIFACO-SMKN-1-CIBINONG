@@ -156,24 +156,43 @@ class KelasController extends Controller
      */
     public function updateSchedule(Request $request, $id)
     {
+        $scheduleMap = [
+            'pagi' => ['05:00', '07:00', '15:00', '18:00'],
+            'siang' => ['09:00', '11:00', '15:00', '18:00'],
+        ];
+
+        $scheduleType = $request->input('schedule_type');
+
+        if ($scheduleType && isset($scheduleMap[$scheduleType])) {
+            $times = $scheduleMap[$scheduleType];
+            $request->merge([
+                'start_time_in'  => $times[0],
+                'end_time_in'    => $times[1],
+                'start_time_out' => $times[2],
+                'end_time_out'   => $times[3],
+            ]);
+        }
+
         $request->validate([
             'start_time_in'  => 'required|date_format:H:i',
             'end_time_in'    => 'required|date_format:H:i|after:start_time_in',
             'start_time_out' => 'required|date_format:H:i|after:end_time_in',
             'end_time_out'   => 'required|date_format:H:i|after:start_time_out',
+            'schedule_type'   => 'nullable|in:pagi,siang',
         ], [
             'start_time_in.required'      => 'Waktu mulai masuk wajib diisi.',
             'start_time_in.date_format'   => 'Format waktu masuk tidak valid (HH:MM).',
             'end_time_in.after'           => 'Waktu batas masuk harus setelah waktu mulai masuk.',
             'start_time_out.after'        => 'Waktu mulai pulang harus setelah batas masuk.',
             'end_time_out.after'          => 'Waktu batas pulang harus setelah waktu mulai pulang.',
+            'schedule_type.in'            => 'Jenis jadwal tidak valid.',
         ]);
 
         $class = ClassModel::findOrFail($id);
 
         $data = [
             'start_time_in'  => $request->start_time_in  . ':00',
-            'end_time_in'    => $request->end_time_in     . ':00',
+            'end_time_in'    => $request->end_time_in    . ':00',
             'start_time_out' => $request->start_time_out . ':00',
             'end_time_out'   => $request->end_time_out   . ':00',
         ];
