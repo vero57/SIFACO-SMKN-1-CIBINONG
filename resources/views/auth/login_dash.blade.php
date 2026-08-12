@@ -45,7 +45,7 @@
         padding:0.65rem 0.9rem;
         border-radius:8px;
         background:rgba(15,23,42,0.6);
-        color:#e6edf3;
+        color:#000000;
         border:1px solid rgba(148,163,184,0.06);
         outline:none;
     }
