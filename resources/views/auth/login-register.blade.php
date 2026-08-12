@@ -105,7 +105,7 @@ body {
     border-radius: 0.8rem;
     border: 1px solid rgba(255,255,255,0.15);
     background: #E8F0FE;
-    color: #e5e7eb;
+    color: #000000;
     font-size: 0.95rem;
     margin-bottom: 0.75rem;
 }
@@ -128,11 +128,11 @@ body {
     background-repeat: no-repeat;
     background-position: right 0.9rem center;
     background-size: 1rem;
-    color: #393C45;
+    color: #334155;
 }
 
 .auth-form option {
-    background: #C8CBE0;
+    background: #ffffff;
     color: black;
 }
 
