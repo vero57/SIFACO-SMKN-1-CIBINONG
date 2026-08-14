@@ -9,9 +9,6 @@ use App\Models\User;
 
 class KelasController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index(Request $request)
     {
         $perPage = $request->input('per_page', 10);
@@ -35,9 +32,6 @@ class KelasController extends Controller
         return view('dashboard.page.kelas_page.index', compact('classes', 'perPage'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         $teachers = User::whereHas('role', function ($q) {
@@ -46,9 +40,6 @@ class KelasController extends Controller
         return view('dashboard.page.kelas_page.create', compact('teachers'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $request->validate([
@@ -62,9 +53,6 @@ class KelasController extends Controller
         return redirect()->route('dashboard.kelas.index')->with('success', 'Kelas berhasil ditambahkan.');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(string $id)
     {
         $class = ClassModel::with(['walas', 'students', 'attendanceSchedule'])->findOrFail($id);
@@ -72,7 +60,6 @@ class KelasController extends Controller
             $q->where('name', 'Guru');
         })->get();
 
-        // Ambil siswa yang belum masuk kelas manapun
         $availableStudents = User::whereHas('role', function ($q) {
             $q->where('name', 'Siswa');
         })
@@ -82,25 +69,14 @@ class KelasController extends Controller
         return view('dashboard.page.kelas_page.show', compact('class', 'teachers', 'availableStudents'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(string $id)
     {
-        //
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, string $id)
     {
-        //
     }
 
-    /**
-     * Update wali kelas.
-     */
     public function updateWalas(Request $request, $id)
     {
         $request->validate([
@@ -112,9 +88,6 @@ class KelasController extends Controller
         return redirect()->route('dashboard.kelas.show', $id)->with('success_walas', 'Wali Kelas berhasil diubah.');
     }
 
-    /**
-     * buat nambahin siswa ke kelas.
-     */
     public function addStudents(Request $request, $id)
     {
         $request->validate([
@@ -135,9 +108,6 @@ class KelasController extends Controller
         return redirect()->route('dashboard.kelas.show', $id)->with('success_siswa', 'Siswa berhasil ditambahkan ke kelas.');
     }
 
-    /**
-     * buat ngeluarin siswa dari kelas.
-     */
     public function removeStudents(Request $request, $id)
     {
         $request->validate([
@@ -150,10 +120,6 @@ class KelasController extends Controller
         return redirect()->route('dashboard.kelas.show', $id)->with('success_siswa', 'Siswa berhasil dikeluarkan dari kelas.');
     }
 
-    /**
-     * Update jadwal kelas.
-     * Menerima 4 field waktu bebas (format HH:MM)
-     */
     public function updateSchedule(Request $request, $id)
     {
         $scheduleMap = [
@@ -207,9 +173,6 @@ class KelasController extends Controller
         return redirect()->route('dashboard.kelas.show', $id)->with('success_jadwal', 'Jadwal berhasil diperbarui.');
     }
 
-    /**
-     * Update nama kelas.
-     */
     public function updateName(Request $request, $id)
     {
         $request->validate([
@@ -221,9 +184,6 @@ class KelasController extends Controller
         return redirect()->route('dashboard.kelas.show', $id)->with('success_nama_kelas', 'Nama kelas berhasil diubah.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(string $id)
     {
         $class = ClassModel::findOrFail($id);

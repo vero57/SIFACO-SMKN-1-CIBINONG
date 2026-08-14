@@ -1,6 +1,6 @@
-# Absen SIJA
+# SIFACO
 
-Absen SIJA adalah aplikasi absensi sekolah berbasis Laravel. Aplikasi ini membantu siswa melakukan absen, mengajukan izin, mengisi jurnal pelajaran, dan membantu guru atau admin memantau data dari dashboard.
+SIFACO adalah aplikasi absensi sekolah berbasis Laravel. Aplikasi ini membantu siswa melakukan absen, mengajukan izin, mengisi jurnal pelajaran, dan membantu guru atau admin memantau data dari dashboard.
 
 Proyek ini juga mendukung validasi lokasi sekolah, foto absen, deteksi wajah dari sisi browser menggunakan `face-api.js`, export Excel, dan pembuatan PDF untuk laporan tertentu.
 
