@@ -150,6 +150,43 @@
         background: #ba1a1a;
         color: white;
     }
+    .btn-telegram {
+        background: #229ed9;
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        transition: all 0.2s;
+        border: none;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        min-height: 40px;
+    }
+    .btn-telegram:hover {
+        background: #168ac0;
+        transform: scale(0.98);
+    }
+    .telegram-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        border-radius: 9999px;
+        padding: 0.25rem 0.625rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    .telegram-status-connected {
+        background: #dcfce7;
+        color: #166534;
+    }
+    .telegram-status-pending {
+        background: #fef3c7;
+        color: #92400e;
+    }
     
     .message-success {
         color: #059669;
@@ -253,6 +290,50 @@
                                 {{ $user->phone_number ?? '-' }}
                             </div>
                             <input type="text" name="phone_number" id="profile-phone-input" class="profile-edit-input hidden" value="{{ $user->phone_number }}" placeholder="Nomor Telepon">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Telegram Field -->
+                <div class="bg-surface-container-lowest rounded-xl p-4 soft-shadow">
+                    <div class="info-row">
+                        <span class="material-symbols-outlined info-icon-filled">send</span>
+                        <div class="info-content">
+                            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                                <div>
+                                    <div class="view-label">Telegram</div>
+                                    <div class="view-value">
+                                        @if($user->telegram_chat_id)
+                                            Notifikasi absen aktif
+                                        @else
+                                            Belum terhubung
+                                        @endif
+                                    </div>
+                                </div>
+                                <span class="telegram-status {{ $user->telegram_chat_id ? 'telegram-status-connected' : 'telegram-status-pending' }}">
+                                    <span class="material-symbols-outlined text-[16px]">
+                                        {{ $user->telegram_chat_id ? 'check_circle' : 'schedule' }}
+                                    </span>
+                                    {{ $user->telegram_chat_id ? 'Terhubung' : 'Menunggu Start' }}
+                                </span>
+                            </div>
+
+                            <div class="mt-4 flex flex-col md:flex-row gap-3">
+                                @if($telegramConnectUrl)
+                                    <a href="{{ $telegramConnectUrl }}" target="_blank" rel="noopener" class="btn-telegram">
+                                        <span class="material-symbols-outlined text-[18px]">send</span>
+                                        {{ $user->telegram_chat_id ? 'Hubungkan Ulang' : 'Hubungkan Telegram' }}
+                                    </a>
+                                @else
+                                    <button type="button" class="btn-outline cursor-not-allowed opacity-70" disabled>
+                                        Bot Telegram belum dikonfigurasi
+                                    </button>
+                                @endif
+                            </div>
+
+                            <p class="mt-3 text-xs leading-5 text-on-surface-variant">
+                                Klik tombol ini, lalu tekan Start di Telegram. Setelah itu notifikasi absen akan dikirim ke akun Telegram yang terhubung.
+                            </p>
                         </div>
                     </div>
                 </div>

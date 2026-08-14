@@ -24,6 +24,8 @@ Homestead.yaml
 Thumbs.db
 /graphify-out
 /.agents
+/.codex
 terms.md
 design.md
 IMPLEMENTATION_NOTES.md
+AGENTS.md

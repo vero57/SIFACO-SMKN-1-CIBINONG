@@ -15,6 +15,9 @@ class User extends Authenticatable
         'email',
         'password',
         'phone_number',
+        'telegram_chat_id',
+        'telegram_link_token',
+        'telegram_linked_at',
         'address',
         'gender',
         'date_of_birth',
@@ -31,6 +34,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'telegram_linked_at' => 'datetime',
         ];
     }
 

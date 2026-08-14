@@ -13,21 +13,18 @@ use App\Models\AttendanceSchedule;
 use App\Models\Permission;
 use App\Models\ViolationPoint;
 use App\Models\ViolationRule;
+use App\Events\AttendanceCreated;
+use Illuminate\Http\JsonResponse;
 
-/**
- * AbsenController — menangani proses check-in dan check-out absen siswa.
- *
- * Alur absen check-in:
- * 1. Validasi user terautentikasi & memiliki kelas.
- * 2. Cek apakah sudah absen hari ini (tolak jika sudah).
- * 3. Cek apakah ada izin/sakit yang disetujui (status override).
- * 4. Validasi wajah (face_label dari frontend).
- * 5. Validasi radius lokasi (server-side double-check dari config).
- * 6. Tentukan status: Hadir / Telat / Sakit / Izin berdasarkan waktu & izin.
- * 7. Simpan data absen, foto, dan poin pelanggaran jika Telat.
- */
 class AbsenController extends Controller
 {
+    private const TIMEZONE = 'Asia/Jakarta';
+    private const STATUS_PRESENT = 'Hadir';
+    private const STATUS_LATE = 'Telat';
+    private const STATUS_SICK = 'Sakit';
+    private const STATUS_PERMISSION = 'Izin';
+    private const LATE_RULE_NAME = 'Terlambat';
+
     public function index()
     {
         return view('landing.feature.absen.index');
@@ -36,94 +33,57 @@ class AbsenController extends Controller
     /**
      * Proses check-in absen siswa.
      */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
         $user = Auth::user();
         if (!$user) {
-            return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
+            return $this->errorResponse('Unauthorized', 401);
         }
 
-        // Ambil class_id user dari relasi belongsToMany 'classes'
-        $classId = $user->classes()->first()?->id ?? null;
+        $classId = $this->getUserClassId($user);
         if (!$classId) {
-            return response()->json(['success' => false, 'message' => 'Kelas tidak ditemukan. Hubungi administrator.'], 422);
+            return $this->errorResponse('Kelas tidak ditemukan. Hubungi administrator.', 422);
         }
 
-        // Ambil jadwal absen kelas
-        $schedule = AttendanceSchedule::where('class_id', $classId)->first();
+        $schedule = $this->getSchedule($classId);
         if (!$schedule) {
-            return response()->json(['success' => false, 'message' => 'Jadwal absen kelas belum diatur. Hubungi administrator.'], 422);
+            return $this->errorResponse('Jadwal absen kelas belum diatur. Hubungi administrator.', 422);
         }
 
-        // Waktu sekarang dalam zona WIB (Asia/Jakarta)
-        $nowWIB = now('Asia/Jakarta');
+        $nowWIB = now(self::TIMEZONE);
         $today  = $nowWIB->toDateString();
 
-        // Cek apakah sudah absen hari ini
-        $sudahAbsen = Attendance::where('student_id', $user->id)
-            ->where('date', $today)
-            ->first();
-        if ($sudahAbsen) {
-            return response()->json(['success' => false, 'message' => 'Anda sudah melakukan absen hari ini.']);
+        if ($this->hasCheckedInToday($user->id, $today)) {
+            return $this->errorResponse('Anda sudah melakukan absen hari ini.');
         }
 
-        // Validasi face label dari frontend
-        if ($request->has('face_label') && strtolower($request->face_label) !== strtolower($user->name)) {
-            return response()->json(['success' => false, 'message' => 'Wajah tidak dikenali. Absen ditolak.'], 403);
+        if (!$this->isFaceMatch($request, $user->name)) {
+            return $this->errorResponse('Wajah tidak dikenali. Absen ditolak.', 403);
         }
 
-        // --- Validasi radius server-side ---
-        // Frontend sudah validasi, tapi ini sebagai double-check keamanan.
-        $schoolLat    = config('school.latitude');
-        $schoolLng    = config('school.longitude');
-        $radiusMeter  = config('school.radius');
+        if (!$request->filled('photo')) {
+            return $this->errorResponse('Foto wajah tidak terkirim. Silakan ulangi absen.', 422);
+        }
 
-        if ($request->filled('lat') && $request->filled('lng')) {
-            $distance = $this->calculateDistanceInMeters(
-                (float) $request->lat,
-                (float) $request->lng,
-                $schoolLat,
-                $schoolLng
+        $distance = $this->getDistanceFromSchool($request);
+        if ($distance !== null && $distance > (float) config('school.radius')) {
+            return $this->errorResponse(
+                'Lokasi Anda berada di luar radius sekolah (' . round($distance, 1) . ' meter). Absen tidak dapat dilakukan.',
+                422
             );
-            if ($distance > $radiusMeter) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Lokasi Anda berada di luar radius sekolah (' . round($distance, 1) . ' meter). Absen tidak dapat dilakukan.',
-                ], 422);
-            }
         }
 
-        // --- Tentukan status absen ---
-        $nowTime = $nowWIB->format('H:i:s');
-
-        // Cek apakah ada Permission (izin/sakit) yang disetujui untuk hari ini
-        $approvedPermission = Permission::where('student_id', $user->id)
-            ->whereIn('type', ['sakit', 'izin'])
-            ->where('status', 'approved')
-            ->whereDate('created_at', $today)
-            ->first();
-
-        if ($approvedPermission) {
-            // Jika ada izin yang disetujui, status absen mengikuti tipe izin
-            $statusName = ($approvedPermission->type === 'sakit') ? 'Sakit' : 'Izin';
-        } elseif ($nowTime > $schedule->end_time_in) {
-            $statusName = 'Telat';
-        } else {
-            $statusName = 'Hadir';
-        }
-
+        $statusName = $this->resolveAttendanceStatus($user->id, $today, $nowWIB->format('H:i:s'), $schedule);
         $status = AttendanceStatus::where('name', $statusName)->first();
         if (!$status) {
-            return response()->json(['success' => false, 'message' => "Status '{$statusName}' tidak ditemukan di database."], 422);
+            return $this->errorResponse("Status '{$statusName}' tidak ditemukan di database.", 422);
         }
 
-        // --- Simpan foto dari base64 ---
-        $photoPath = null;
-        if ($request->photo) {
-            $photoPath = $this->saveBase64Photo($request->photo, 'attendance_photos', 'attendance_' . $user->id);
+        $photoPath = $this->saveBase64Photo($request->photo, 'attendance_photos', 'attendance_' . $user->id);
+        if (!$photoPath) {
+            return $this->errorResponse('Format foto wajah tidak valid. Silakan ulangi absen.', 422);
         }
 
-        // --- Simpan record absen ---
         $absen = Attendance::create([
             'student_id'   => $user->id,
             'class_id'     => $classId,
@@ -135,22 +95,10 @@ class AbsenController extends Controller
             'photo'        => $photoPath,
         ]);
 
-        event(new \App\Events\AttendanceCreated($absen));
+        event(new AttendanceCreated($absen));
+        $this->recordLateViolationIfNeeded($absen, $statusName);
 
-        // Tambahkan poin pelanggaran jika Telat
-        if ($statusName === 'Telat') {
-            $rule = ViolationRule::where('name', 'Terlambat')->first();
-            if ($rule) {
-                ViolationPoint::create([
-                    'student_id'    => $user->id,
-                    'attendance_id' => $absen->id,
-                    'rule_id'       => $rule->id,
-                ]);
-            }
-        }
-
-        return response()->json([
-            'success' => true,
+        return $this->successResponse([
             'status'  => $statusName,
             'message' => "Absen berhasil. Status: {$statusName}.",
         ]);
@@ -159,11 +107,11 @@ class AbsenController extends Controller
     /**
      * Proses check-out absen siswa.
      */
-    public function checkout(Request $request)
+    public function checkout(Request $request): JsonResponse
     {
         $user = Auth::user();
         if (!$user) {
-            return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
+            return $this->errorResponse('Unauthorized', 401);
         }
 
         $request->validate([
@@ -172,48 +120,43 @@ class AbsenController extends Controller
 
         $attendance = Attendance::findOrFail($request->attendance_id);
 
-        // Pastikan absen milik user yang sedang login
-        if ($attendance->student_id != $user->id) {
-            return response()->json(['success' => false, 'message' => 'Akses ditolak.'], 403);
+        if ((int) $attendance->student_id !== (int) $user->id) {
+            return $this->errorResponse('Akses ditolak.', 403);
         }
 
         if ($attendance->time_out) {
-            return response()->json(['success' => false, 'message' => 'Anda sudah melakukan check-out hari ini.']);
+            return $this->errorResponse('Anda sudah melakukan check-out hari ini.');
         }
 
         if (!$attendance->time_in) {
-            return response()->json(['success' => false, 'message' => 'Belum melakukan check-in.']);
+            return $this->errorResponse('Belum melakukan check-in.');
         }
 
-        $classId = $attendance->class_id ?? $user->classes()->first()?->id ?? null;
+        $classId = $attendance->class_id ?? $this->getUserClassId($user);
         if (!$classId) {
-            return response()->json(['success' => false, 'message' => 'Kelas tidak ditemukan.'], 422);
+            return $this->errorResponse('Kelas tidak ditemukan.', 422);
         }
 
-        $schedule = AttendanceSchedule::where('class_id', $classId)->first();
+        $schedule = $this->getSchedule($classId);
         if (!$schedule) {
-            return response()->json(['success' => false, 'message' => 'Jadwal kelas tidak ditemukan.'], 422);
+            return $this->errorResponse('Jadwal kelas tidak ditemukan.', 422);
         }
 
-        $nowWIB  = now('Asia/Jakarta');
+        $nowWIB  = now(self::TIMEZONE);
         $nowTime = $nowWIB->format('H:i:s');
         $today   = $nowWIB->toDateString();
 
-        // Validasi: absen harus tanggal hari ini
-        if ($attendance->date != $today) {
-            return response()->json(['success' => false, 'message' => 'Tidak dapat check-out untuk tanggal yang sudah lewat.']);
+        if ($attendance->date !== $today) {
+            return $this->errorResponse('Tidak dapat check-out untuk tanggal yang sudah lewat.');
         }
 
-        // Validasi: belum waktunya pulang
         if ($nowTime < $schedule->start_time_out) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Belum waktunya pulang. Check-out dapat dilakukan mulai pukul ' . substr($schedule->start_time_out, 0, 5) . ' WIB.',
-            ]);
+            return $this->errorResponse(
+                'Belum waktunya pulang. Check-out dapat dilakukan mulai pukul ' . substr($schedule->start_time_out, 0, 5) . ' WIB.'
+            );
         }
 
-        $attendance->time_out = $nowTime;
-        $attendance->save();
+        $attendance->update(['time_out' => $nowTime]);
 
         Log::info('[Absen] Check-out berhasil', [
             'user_id'       => $user->id,
@@ -222,26 +165,96 @@ class AbsenController extends Controller
             'date'          => $today,
         ]);
 
-        return response()->json([
-            'success'       => true,
+        return $this->successResponse([
             'time_out'      => $nowTime,
             'attendance_id' => $attendance->id,
             'message'       => 'Check-out berhasil pada jam ' . substr($nowTime, 0, 5) . ' WIB.',
         ]);
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // Private helpers
-    // ─────────────────────────────────────────────────────────────────────────
+    private function getUserClassId($user): ?int
+    {
+        return $user->classes()->value('classes.id');
+    }
 
-    /**
-     * Hitung jarak dua titik koordinat dalam satuan meter menggunakan formula Haversine.
-     */
+    private function getSchedule(int $classId): ?AttendanceSchedule
+    {
+        return AttendanceSchedule::where('class_id', $classId)->first();
+    }
+
+    private function hasCheckedInToday(int $studentId, string $date): bool
+    {
+        return Attendance::where('student_id', $studentId)
+            ->where('date', $date)
+            ->exists();
+    }
+
+    private function isFaceMatch(Request $request, string $studentName): bool
+    {
+        return !$request->has('face_label')
+            || strtolower($request->face_label) === strtolower($studentName);
+    }
+
+    private function getDistanceFromSchool(Request $request): ?float
+    {
+        if (!$request->filled('lat') || !$request->filled('lng')) {
+            return null;
+        }
+
+        return $this->calculateDistanceInMeters(
+            (float) $request->lat,
+            (float) $request->lng,
+            (float) config('school.latitude'),
+            (float) config('school.longitude')
+        );
+    }
+
+    private function resolveAttendanceStatus(
+        int $studentId,
+        string $date,
+        string $currentTime,
+        AttendanceSchedule $schedule
+    ): string {
+        $approvedPermission = Permission::where('student_id', $studentId)
+            ->whereIn('type', ['sakit', 'izin'])
+            ->where('status', 'approved')
+            ->whereDate('created_at', $date)
+            ->first();
+
+        if ($approvedPermission) {
+            return $approvedPermission->type === 'sakit'
+                ? self::STATUS_SICK
+                : self::STATUS_PERMISSION;
+        }
+
+        return $currentTime > $schedule->end_time_in
+            ? self::STATUS_LATE
+            : self::STATUS_PRESENT;
+    }
+
+    private function recordLateViolationIfNeeded(Attendance $attendance, string $statusName): void
+    {
+        if ($statusName !== self::STATUS_LATE) {
+            return;
+        }
+
+        $rule = ViolationRule::where('name', self::LATE_RULE_NAME)->first();
+        if (!$rule) {
+            return;
+        }
+
+        ViolationPoint::create([
+            'student_id' => $attendance->student_id,
+            'attendance_id' => $attendance->id,
+            'rule_id' => $rule->id,
+        ]);
+    }
+
     private function calculateDistanceInMeters(
         float $lat1, float $lng1,
         float $lat2, float $lng2
     ): float {
-        $earthRadius = 6371000; // meter
+        $earthRadius = 6371000;
         $dLat = deg2rad($lat2 - $lat1);
         $dLng = deg2rad($lng2 - $lng1);
         $a = sin($dLat / 2) ** 2
@@ -261,7 +274,10 @@ class AbsenController extends Controller
         }
 
         $extension = strtolower($matches[1]);
-        $imageData = base64_decode(substr($base64Data, strpos($base64Data, ',') + 1));
+        $imageData = base64_decode(substr($base64Data, strpos($base64Data, ',') + 1), true);
+        if ($imageData === false) {
+            return null;
+        }
 
         $filename = $prefix . '_' . time() . '.' . $extension;
         $path     = $directory . '/' . $filename;
@@ -269,5 +285,18 @@ class AbsenController extends Controller
         Storage::disk('public')->put($path, $imageData);
 
         return 'storage/' . $path;
+    }
+
+    private function errorResponse(string $message, int $status = 200): JsonResponse
+    {
+        return response()->json([
+            'success' => false,
+            'message' => $message,
+        ], $status);
+    }
+
+    private function successResponse(array $payload = [], int $status = 200): JsonResponse
+    {
+        return response()->json(['success' => true] + $payload, $status);
     }
 }

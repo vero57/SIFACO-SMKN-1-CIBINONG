@@ -40,5 +40,10 @@ return [
         'api_key' => env('WAHA_API_KEY'),
     ],
 
+    'telegram' => [
+        'bot_token' => env('TELEGRAM_BOT_TOKEN'),
+        'bot_username' => env('TELEGRAM_BOT_USERNAME'),
+        'chat_id' => env('TELEGRAM_CHAT_ID'),
+    ],
 
 ];

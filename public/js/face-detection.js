@@ -26,6 +26,7 @@ class FaceDetection {
         this.holdingCount   = 0;
         this.REQUIRED_HOLD_FRAMES = 4; 
         this.MIN_CONFIDENCE = 0.50; 
+        this.capturedPhoto  = null;
     }
 
     getEkspresiTarget() {
@@ -142,6 +143,7 @@ class FaceDetection {
 
         // Kunci & matikan kamera setelah ekpresi terbukti ditahan & cocok
         this.absenBerhasil = true;
+        this.capturedPhoto = this.captureCurrentFrame();
         this.stopCameraStreamOnly();
         this.updateStepper();
         this.showProcessingModal();
@@ -164,6 +166,21 @@ class FaceDetection {
             this.video.srcObject.getTracks().forEach((track) => track.stop());
             this.video.srcObject = null;
         }
+    }
+
+    captureCurrentFrame() {
+        if (!this.video || !this.video.videoWidth || !this.video.videoHeight) {
+            return null;
+        }
+
+        const canvas = document.createElement("canvas");
+        canvas.width = this.video.videoWidth;
+        canvas.height = this.video.videoHeight;
+
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(this.video, 0, 0, canvas.width, canvas.height);
+
+        return canvas.toDataURL("image/jpeg", 0.8);
     }
 
     hideProcessingModal() {
@@ -278,14 +295,6 @@ class FaceDetection {
     }
 
     submitAbsen(lat, lng, faceLabel) {
-        // Ambil snapshot dari video, kompresi ke JPEG 0.7 agar ukuran kecil
-        const canvas = document.createElement("canvas");
-        canvas.width = this.video ? this.video.videoWidth  : 640;
-        canvas.height= this.video ? this.video.videoHeight : 480;
-        const ctx    = canvas.getContext("2d");
-        if (this.video) ctx.drawImage(this.video, 0, 0, canvas.width, canvas.height);
-        const photoData = canvas.toDataURL("image/jpeg", 0.7);
-
         // Gunakan URL dari window.absenStoreUrl yang diinjek server (bukan hardcode "/feature/absen/store")
         const storeUrl = window.absenStoreUrl || "/absen/store";
 
@@ -299,7 +308,7 @@ class FaceDetection {
                 ekspresi:   this.ekspresiTarget,
                 lat:        lat,
                 lng:        lng,
-                photo:      photoData,
+                photo:      this.capturedPhoto,
                 face_label: faceLabel,
             }),
         })

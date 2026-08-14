@@ -14,8 +14,8 @@ class ClassModel extends Model
         return $this->belongsToMany(
             User::class,
             'class_student',
-            'class_id',    // foreign key di tabel pivot yang mengacu ke classes
-            'student_id'   // foreign key di tabel pivot yang mengacu ke users
+            'class_id',
+            'student_id'
         );
     }
 
@@ -24,8 +24,8 @@ class ClassModel extends Model
         return $this->belongsToMany(
             Subject::class,
             'class_subject',
-            'class_id',   // foreign key di tabel pivot yang mengacu ke classes
-            'subject_id'  // foreign key di tabel pivot yang mengacu ke subjects
+            'class_id',
+            'subject_id'
         );
     }
 
