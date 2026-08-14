@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\landing\feature;
 
+use App\Events\PermissionCreated;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Permission;
@@ -61,6 +62,8 @@ class IzinController extends Controller
                 ]);
             }
         }
+
+        event(new PermissionCreated($permission));
 
         return redirect()->route('landing.home')->with('success', 'Izin berhasil diajukan.');
     }

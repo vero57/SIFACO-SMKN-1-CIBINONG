@@ -5,13 +5,26 @@ namespace App\Http\Controllers\landing;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class ProfileController extends Controller
 {
     public function index()
     {
         $user = Auth::user();
-        return view('landing.profile.index', compact('user'));
+
+        if (!$user->telegram_link_token) {
+            $user->forceFill([
+                'telegram_link_token' => Str::random(48),
+            ])->save();
+        }
+
+        $telegramBotUsername = config('services.telegram.bot_username');
+        $telegramConnectUrl = $telegramBotUsername
+            ? 'https://t.me/' . ltrim($telegramBotUsername, '@') . '?start=' . $user->telegram_link_token
+            : null;
+
+        return view('landing.profile.index', compact('user', 'telegramConnectUrl'));
     }
 
     public function update(Request $request)
